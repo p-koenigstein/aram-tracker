@@ -28,3 +28,15 @@
     color:white;
     padding-left:25px;
 }
+
+.lockedIn {
+    background-color:teal
+}
+
+.team:nth-child(0){
+    float:left
+}
+
+.team:nth-child(1){
+    float:right
+}

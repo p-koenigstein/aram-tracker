@@ -39,6 +39,7 @@ let champs = []
 const handleMessage = (bytes, uuid) => {
     const request = JSON.parse(bytes.toString())
     let message = {}
+    let team
     switch (request["action"]) {
         case "register":
             message.action = "playerList"
@@ -68,15 +69,39 @@ const handleMessage = (bytes, uuid) => {
         case "selectChampion":
             let request_pl = request.payload
             let champName = request_pl.champName
-            let team = players[uuid].state.team
-            teams[team][uuid].state.selectedChampion = champName
+            team = players[uuid].state.team
+            if (!teams[team][uuid].state.lockedIn){
+                teams[team][uuid].state.selectedChampion = champName
+                message.action = "updateChamps"
+                message.payload = {}
+                message.payload.team = teams[team]
+                broadcastTeam(message,team)
+            }
+            break;
+        case "confirmChampion":
+            team = players[uuid].state.team
+            teams[team][uuid].state.lockedIn = true
             message.action = "updateChamps"
             message.payload = {}
             message.payload.team = teams[team]
-            broadcastTeam(message,team)
-            break;
+            broadcastTeam(message, team)
+            checkStartCondition()
         default:
             break;
+    }
+}
+
+const checkStartCondition = () => {
+    let not_ready_players = Object.keys(players).filter(
+        (key) => !players[key].state.lockedIn
+    )
+    if (not_ready_players.length === 0){
+        console.log("finish draft")
+        let message = {}
+        message.action = "finishDraft"
+        message.payload = {}
+        message.payload.teams = teams
+        broadcast(message)
     }
 }
 
@@ -96,6 +121,10 @@ const broadcastTeam = (message, team) => {
 }
 
 const handleClose = (uuid) => {
+    let team = players[uuid].state.team
+    if (team>-1){
+        delete teams[team][uuid]
+    }
     delete connections[uuid]
     delete players[uuid]
     broadcast()
@@ -114,7 +143,9 @@ wsServer.on("connection", (connection, request) => {
     players[uuid] = {
         username,
         state : {
-            selectedChampion:""
+            selectedChampion:"",
+            lockedIn:false,
+            team:-1
         }
     }
     connections[uuid] = connection

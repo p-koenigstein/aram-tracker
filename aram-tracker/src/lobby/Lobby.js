@@ -3,6 +3,8 @@ import useWebSocket from "react-use-websocket";
 import {useEffect, useState} from "react";
 import {PlayerList} from "./PlayerList";
 import ChampionSelect from "../champselect/ChampionSelect";
+import './ChampSelecct.css'
+import {HeadsUp} from "../champselect/HeadsUp";
 
 export function Lobby ({username}) {
 
@@ -10,8 +12,12 @@ export function Lobby ({username}) {
 
     const [players, setPlayers] = useState([])
     const [team, setTeam] = useState({})
+    const [status, setStatus] = useState("lobby")
     const [started, setStarted] = useState(false)
     const [availableChamps, setAvailableChamps] = useState([])
+    const [completeDraft, setCompleteDraft] = useState([])
+    const [draftComplete, setDraftComplete] = useState(false)
+
 
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(WS_URL,
         {
@@ -40,12 +46,20 @@ export function Lobby ({username}) {
                     console.log(payload)
                     setAvailableChamps(payload["availableChamps"])
                     setTeam(payload["team"])
-                    setStarted(true)
+                    setStatus("draft")
+                    // setStarted(true)
                     break;
                 case "updateChamps":
                     payload = lastJsonMessage["payload"]
                     let newTeam = payload.team
                     setTeam(newTeam)
+                    break;
+                case "finishDraft":
+                    payload = lastJsonMessage["payload"]
+                    console.log(lastJsonMessage)
+                    setCompleteDraft(payload.teams)
+                    setDraftComplete(true)
+                    setStatus("game")
                     break;
                 default:
                     break;
@@ -63,14 +77,27 @@ export function Lobby ({username}) {
         sendJsonMessage({action:"selectChampion",payload:{champName:champName}})
     }
 
-    return (
-        <div>
-            {started ? (<ChampionSelect playerAmount={Object.keys(team).length} selectChampion={selectChampion} availableChampions={availableChamps} players={team}/>)
-                :
-                (<PlayerList players={players} startGame={startGame}/>)
-            }
-        </div>
-    )
+    const confirmChampion = () => {
+        sendJsonMessage({action:"confirmChampion", payload:{}})
+    }
+
+    console.log(status)
+    switch (status) {
+        case "lobby":
+            return <div>
+                <PlayerList players={players} startGame={startGame}/>
+            </div>
+        case "draft":
+            return <div>
+                <ChampionSelect playerAmount={Object.keys(team).length} selectChampion={selectChampion} availableChampions={availableChamps} players={team} confirmChampion={confirmChampion}/>
+            </div>
+        case "game":
+            return <div>
+                <HeadsUp teams={completeDraft}/>
+            </div>
+        default:
+            <div/>
+    }
 }
 
 export default Lobby
