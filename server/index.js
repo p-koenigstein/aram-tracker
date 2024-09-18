@@ -156,5 +156,5 @@ wsServer.on("connection", (connection, request) => {
     connection.on("close", () => handleClose(uuid))
 })
 server.listen(port, () => {
-    console.log(`WebSocket server is running on port ${port}`)
+    console.log(`WebSocket server is running on pfgort ${port}`)
 })
