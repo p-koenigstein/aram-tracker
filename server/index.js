@@ -71,11 +71,14 @@ const handleMessage = (bytes, uuid) => {
             let champName = request_pl.champName
             team = players[uuid].state.team
             if (!teams[team][uuid].state.lockedIn){
-                teams[team][uuid].state.selectedChampion = champName
-                message.action = "updateChamps"
-                message.payload = {}
-                message.payload.team = teams[team]
-                broadcastTeam(message,team)
+                let selectedChampions = Object.keys(teams[team]).map((id) => teams[team][id].state.selectedChampion)
+                if (!selectedChampions.includes(champName)) {
+                    teams[team][uuid].state.selectedChampion = champName
+                    message.action = "updateChamps"
+                    message.payload = {}
+                    message.payload.team = teams[team]
+                    broadcastTeam(message, team)
+                }
             }
             break;
         case "confirmChampion":
