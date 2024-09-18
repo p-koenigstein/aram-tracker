@@ -1,0 +1,30 @@
+.championIcon{
+    width:120px;
+    height:120px;
+    background-color:grey;
+}
+
+.championIconWrapper{
+    display : inline-block;
+    padding:6px;
+}
+
+.champSelect{
+    background-color: #330019;
+    min-height:2000px;
+}
+
+.players{
+    float:left;
+    padding:10px;
+}
+
+.availableChampions{
+    display:inline-block;
+    padding:10px;
+}
+
+.playerName{
+    color:white;
+    padding-left:25px;
+}
