@@ -7,8 +7,7 @@ import './ChampSelecct.css'
 import {HeadsUp} from "../champselect/HeadsUp";
 
 export function Lobby ({username}) {
-
-    const WS_URL = 'ws://85.214.6.71:8000'
+    const WS_URL = process.env.REACT_APP_WS_URL;
 
     const [players, setPlayers] = useState([])
     const [team, setTeam] = useState({})
@@ -18,6 +17,7 @@ export function Lobby ({username}) {
     const [completeDraft, setCompleteDraft] = useState([])
     const [draftComplete, setDraftComplete] = useState(false)
 
+    console.log(WS_URL)
 
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(WS_URL,
         {
