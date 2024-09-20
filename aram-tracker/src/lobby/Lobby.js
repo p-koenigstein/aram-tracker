@@ -16,6 +16,7 @@ export function Lobby ({username}) {
     const [availableChamps, setAvailableChamps] = useState([])
     const [completeDraft, setCompleteDraft] = useState([])
     const [draftComplete, setDraftComplete] = useState(false)
+    const [teamNames, setTeamNames] = useState([])
 
     console.log(WS_URL)
 
@@ -61,7 +62,12 @@ export function Lobby ({username}) {
                     setDraftComplete(true)
                     setStatus("game")
                     break;
+                case "gameFinish":
+                    payload = lastJsonMessage["payload"]
+                    setTeamNames(payload.teamNames)
+                    break;
                 default:
+                    console.log(lastJsonMessage)
                     break;
             }
         }
@@ -93,7 +99,7 @@ export function Lobby ({username}) {
             </div>
         case "game":
             return <div>
-                <HeadsUp teams={completeDraft}/>
+                <HeadsUp teams={completeDraft} teamNames={teamNames}/>
             </div>
         default:
             <div/>

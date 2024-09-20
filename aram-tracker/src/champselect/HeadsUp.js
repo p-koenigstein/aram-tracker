@@ -1,8 +1,10 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {PlayerSlot} from "./ChampionSelect";
+import useWebSocket from "react-use-websocket";
+import {Button} from "react-bootstrap";
 
 
-export function HeadsUp ({teams}) {
+export function HeadsUp ({teams, teamNames}) {
 
     return (
         <div>
@@ -17,6 +19,15 @@ export function HeadsUp ({teams}) {
                     </div>
                 )
             }
+            {teamNames.length ===2? (
+                <div><Button>
+                {teamNames[0]}
+            </Button>
+            <Button>
+                {teamNames[1]}
+            </Button>
+            </div>
+            ):<div/>}
         </div>
     )
 }

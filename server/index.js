@@ -12,6 +12,8 @@ const port = 8000
 let players = {}
 let connections = {}
 
+let gameCountdown = null
+
 let teams = [{},{}]
 let allChamps = [
     "Aatrox", "Ahri", "Akali", "Akshan", "Alistar", "Amumu", "Anivia", "Annie", "Aphelios",
@@ -99,13 +101,28 @@ const checkStartCondition = () => {
         (key) => !players[key].state.lockedIn
     )
     if (not_ready_players.length === 0){
-        console.log("finish draft")
-        let message = {}
-        message.action = "finishDraft"
-        message.payload = {}
-        message.payload.teams = teams
-        broadcast(message)
+        startGame()
     }
+}
+
+const startGame = () => {
+    let message = {}
+    message.action = "finishDraft"
+    message.payload = {}
+    message.payload.teams = teams
+    broadcast(message)
+    setTimeout(() => {displayWinnerButtons()}, 2000)
+}
+
+const displayWinnerButtons = () =>{
+    let message = {}
+    message.action = "gameFinish"
+    message.payload ={}
+    message.payload.teamNames = teams.map(team => {
+        let teamLeader = Object.keys(team).sort((p1,p2) => 0.5 - Math.random())
+        return "Team "+team[teamLeader].username
+    })
+    broadcast(message)
 }
 
 const getDraft = () => {
