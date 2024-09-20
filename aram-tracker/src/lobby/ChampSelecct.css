@@ -40,3 +40,17 @@
 .team:nth-child(1){
     float:right
 }
+
+.userInfo{
+    padding-bottom:10px;
+    border-bottom:2px double #330019;
+}
+
+.logout{
+    display:inline;
+    float:right;
+}
+
+.userName{
+    display:inline;
+}

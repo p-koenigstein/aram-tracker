@@ -9,16 +9,23 @@ import {Overview} from "./landingpage/Overview";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {LeaderBoard} from "./leaderboard/LeaderBoard";
 import {useCookies} from "react-cookie";
+import {UserInfo} from "./landingpage/UserInfo";
 
 function App() {
 
   const [userName, setUserName] = useState("");
-  const [cookies, setCookies, getCookies] = useCookies(["customaram"]);
+  const [cookies, setCookies, deleteCookie] = useCookies(["customaram"]);
 
 
   const updateUserName = (userName) => {
       setUserName(userName);
       setCookies("username", userName);
+  }
+
+  const logout = () => {
+      deleteCookie("username")
+      setUserName("")
+      console.log("logout")
   }
 
     useEffect(() => {
@@ -28,9 +35,11 @@ function App() {
 
   return <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Overview />}/>
-        <Route path="lobby" element={userName ? <Lobby username={userName}/>:<Login onSubmit={updateUserName}/>}/>
-        <Route path="leaderboard" element={<LeaderBoard userName={userName}/>}/>
+          <Route path="/" element={<UserInfo username={userName} logout={logout}/>}>
+            <Route path="/" element={<Overview />}/>
+            <Route path="lobby" element={userName ? <Lobby username={userName}/>:<Login onSubmit={updateUserName}/>}/>
+            <Route path="leaderboard" element={<LeaderBoard userName={userName}/>}/>
+              #</Route>
       </Routes>
   </BrowserRouter>
 
