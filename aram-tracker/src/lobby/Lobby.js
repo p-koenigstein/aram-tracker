@@ -8,7 +8,7 @@ import {HeadsUp} from "../champselect/HeadsUp";
 
 export function Lobby ({username}) {
 
-    const WS_URL = 'ws://127.0.0.1:8000'
+    const WS_URL = 'ws://85.214.6.71:8000'
 
     const [players, setPlayers] = useState([])
     const [team, setTeam] = useState({})
