@@ -143,7 +143,8 @@ const broadcastTeam = (message, team) => {
 }
 
 const handleClose = (uuid) => {
-    let timeout = setTimeout(() => handleDisconnect(uuid),3000)
+    //let timeout = setTimeout(() => handleDisconnect(uuid),3000)
+    handleDisconnect(uuid)
 }
 
 const handleDisconnect = (uuid) => {
