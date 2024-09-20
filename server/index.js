@@ -124,16 +124,25 @@ const broadcastTeam = (message, team) => {
 }
 
 const handleClose = (uuid) => {
+    let timeout = setTimeout(() => handleDisconnect(uuid),3000)
+}
+
+const handleDisconnect = (uuid) => {
+    let message = {}
+    message.action = "playerList"
+    message.payload = players
     let team = players[uuid].state.team
     if (team>-1){
         delete teams[team][uuid]
     }
     delete connections[uuid]
     delete players[uuid]
-    broadcast()
+
+    broadcast(message)
 }
 
 const broadcast = (message) => {
+    console.log(message)
     Object.keys(connections).forEach(uuid => {
         const connection = connections[uuid]
         connection.send(JSON.stringify(message))
