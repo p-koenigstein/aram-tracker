@@ -99,7 +99,7 @@ export function Lobby ({username}) {
             </div>
         case "game":
             return <div>
-                <HeadsUp teams={completeDraft} teamNames={teamNames}/>
+                <HeadsUp teams={completeDraft} teamNames={teamNames} sendJsonMessage={sendJsonMessage}/>
             </div>
         default:
             <div/>

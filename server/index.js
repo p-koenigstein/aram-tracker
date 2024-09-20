@@ -91,7 +91,9 @@ const handleMessage = (bytes, uuid) => {
             message.payload.team = teams[team]
             broadcastTeam(message, team)
             checkStartCondition()
+            break;
         default:
+            console.log(request)
             break;
     }
 }
