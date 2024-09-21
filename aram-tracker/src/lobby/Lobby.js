@@ -42,14 +42,11 @@ export function Lobby ({username}) {
                         ((key) => lastJsonMessage.payload.players[key].username)
                     )
                     setPlayers(currentPlayers)
-                    setLastGame(lastJsonMessage.payload.lastMatch)
-                    console.log(lastJsonMessage)
                     setStatus("lobby")
                     break;
                 case "startGame":
                     ///TODO
                     payload = lastJsonMessage["payload"]
-                    console.log(payload)
                     setAvailableChamps(payload["availableChamps"])
                     setTeam(payload["team"])
                     setStatus("draft")
@@ -70,6 +67,10 @@ export function Lobby ({username}) {
                 case "gameFinish":
                     payload = lastJsonMessage["payload"]
                     setTeamNames(payload.teamNames)
+                    break;
+                case "updateLatestMatch":
+                    console.log(lastJsonMessage)
+                    setLastGame(lastJsonMessage.payload)
                     break;
                 default:
                     console.log(lastJsonMessage)

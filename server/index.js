@@ -125,6 +125,8 @@ const handleMessage = (bytes, uuid) => {
             writeDB(dbEntry)
                 .then(result => {console.log(result)})
                 .catch(error => {console.log(error)})
+            lastMatch = dbEntry
+            sendLatestMatch()
             endGame()
             break;
         default:
@@ -138,7 +140,8 @@ const getPlayerList = () => {
     message.action = "playerList"
     message.payload = {}
     message.payload.players = players
-    message.payload.lastMatch = lastMatch
+    console.log("updating last match")
+    sendLatestMatch()
     return message
 }
 
@@ -152,10 +155,18 @@ async function getLatestMatch ()  {
     lastMatch =  matches.sort((a, b) => {
         let dateA = new Date(a.timestamp)
         let dateB = new Date(b.timestamp)
-        return dateB- dateA
+        return dateB - dateA
     },1)[0]
-    console.log("fetched "+lastMatch)
+    sendLatestMatch()
     // the following code examples can be pasted here...
+}
+
+const sendLatestMatch = () => {
+    let message = {
+        action:"updateLatestMatch"
+    }
+    message.payload = lastMatch
+    broadcast(message)
 }
 
 const checkStartCondition = () => {
@@ -215,6 +226,7 @@ const endGame = () => {
     Object.keys(players).forEach(uuid => {
         players[uuid].state = getDefaultPlayerState()
     })
+    console.log("get playerlist")
     let message = getPlayerList()
     broadcast(message)
 }
