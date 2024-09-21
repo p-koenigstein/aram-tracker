@@ -62,7 +62,6 @@ const handleMessage = (bytes, uuid) => {
                 //shuffle keys
                 const randomOrder = Object.keys(players).sort((a, b) => 0.5 - Math.random())
                 let current_team = 0
-                console.log(teams)
                 for (let playerUUID in randomOrder) {
                     let currentUUID = randomOrder[playerUUID]
                     teams[current_team][currentUUID] = players[currentUUID]
@@ -123,11 +122,14 @@ const handleMessage = (bytes, uuid) => {
             )
             dbEntry.timestamp = new Date(Date.now()).toISOString()
             writeDB(dbEntry)
-                .then(result => {console.log(result)})
+                .then(result => {})
                 .catch(error => {console.log(error)})
             lastMatch = dbEntry
             sendLatestMatch()
             endGame()
+            break;
+        case "requestMatchHistory":
+            getMatchHistory(uuid)
             break;
         default:
             console.log(request)
@@ -140,18 +142,41 @@ const getPlayerList = () => {
     message.action = "playerList"
     message.payload = {}
     message.payload.players = players
-    console.log("updating last match")
     sendLatestMatch()
     return message
 }
 
+const getMatchHistory = (uuid) => {
+    client.connect()
+        .then(() => {
+                const db = client.db(dbName);
+                const collection = db.collection('matchhistory');
+                collection.find().toArray().then(
+                    (matches) => {
+                        let allMatches = matches.sort((a, b) => {
+                            let dateA = new Date(a.timestamp)
+                            let dateB = new Date(b.timestamp)
+                            return dateB - dateA
+                        },1)
+                        let message = {
+                            action:"matchHistory",
+                            payload:{
+                                matches:allMatches
+                            }
+                        }
+                        console.log("sending matchistory")
+                        connections[uuid].send(JSON.stringify(message))
+                    }
+                )
+            }
+        )
+}
+
 async function getLatestMatch ()  {
     await client.connect();
-    console.log('Connected successfully to server');
     const db = client.db(dbName);
     const collection = db.collection('matchhistory');
     const matches = await collection.find().toArray();
-    console.log(matches)
     lastMatch =  matches.sort((a, b) => {
         let dateA = new Date(a.timestamp)
         let dateB = new Date(b.timestamp)
@@ -188,15 +213,11 @@ const startGame = () => {
 }
 
 const displayWinnerButtons = () =>{
-    console.log(teams)
     let message = {}
     message.action = "gameFinish"
     message.payload ={}
     message.payload.teamNames = teams.map(team => {
         let teamLeader = Object.keys(team).sort((p1,p2) => 0.5 - Math.random())[0]
-        console.log(team)
-        console.log(teamLeader)
-        console.log(team[teamLeader])
         return "Team "+team[teamLeader].username
     })
     broadcast(message)
@@ -220,13 +241,11 @@ const broadcastTeam = (message, team) => {
 }
 
 const endGame = () => {
-    console.log("end game")
     champs = []
     teams = [{},{}]
     Object.keys(players).forEach(uuid => {
         players[uuid].state = getDefaultPlayerState()
     })
-    console.log("get playerlist")
     let message = getPlayerList()
     broadcast(message)
 }
@@ -254,7 +273,6 @@ async function writeDB (jsonEntry) {
 
     // Use connect method to connect to the server
     await client.connect();
-    console.log('Connected successfully to server');
     const db = client.db(dbName);
     const collection = db.collection('matchhistory');
     const insertResult = await collection.insertOne(jsonEntry);

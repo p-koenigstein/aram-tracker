@@ -10,6 +10,7 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {LeaderBoard} from "./leaderboard/LeaderBoard";
 import {useCookies} from "react-cookie";
 import {UserInfo} from "./landingpage/UserInfo";
+import {MatchHistory} from "./matchhistory/MatchHistory";
 
 function App() {
 
@@ -41,7 +42,8 @@ function App() {
             <Route path="/" element={<Overview />}/>
             <Route path="lobby" element={userName ? <Lobby username={userName}/>:<Login onSubmit={updateUserName}/>}/>
             <Route path="leaderboard" element={<LeaderBoard userName={userName}/>}/>
-              #</Route>
+              <Route path="matchhistory" element={<MatchHistory/>}/>
+          </Route>
       </Routes>
   </BrowserRouter>
 

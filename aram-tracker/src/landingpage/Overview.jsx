@@ -6,6 +6,7 @@ export function Overview ({userName}) {
     return (
         <div>
             <Button href="/leaderboard">Rangliste</Button>
+            <Button hfref="/matchhistory">Match History</Button>
             <Button href="/lobby" >Lobby</Button>
         </div>
     )
