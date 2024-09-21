@@ -1,6 +1,12 @@
 
 
 const http = require('http')
+const {MongoClient} = require('mongodb')
+
+const dbUrl = 'mongodb://localhost:27017';
+const client = new MongoClient(dbUrl);
+const dbName = 'aramTracker';
+
 const {WebSocketServer} = require('ws')
 const url = require('url')
 const uuidv4 = require("uuid").v4
@@ -101,6 +107,26 @@ const handleMessage = (bytes, uuid) => {
             break;
         case "vote":
             //TODO
+            let vote = request.payload.team;
+            let dbEntry = {
+                winner:vote
+            }
+            dbEntry["team0"] = Object.keys(teams[0]).map((uuid) => {
+                return{
+                    username : players[uuid].username,
+                    champName: players[uuid].state.selectedChampion
+                }
+            })
+            dbEntry["team1"] = Object.keys(teams[1]).map((uuid) => {
+                return{
+                    username : players[uuid].username,
+                    champName: players[uuid].state.selectedChampion
+                }
+            })
+            dbEntry.timestamp = new Date(Date.now()).toISOString()
+            writeDB(dbEntry)
+                .then(result => {console.log(result)})
+                .catch(error => {console.log(error)})
             endGame()
             break;
         default:
@@ -189,6 +215,18 @@ const handleDisconnect = (uuid) => {
     delete players[uuid]
 
     broadcast(message)
+}
+
+async function writeDB (jsonEntry) {
+
+    // Use connect method to connect to the server
+    await client.connect();
+    console.log('Connected successfully to server');
+    const db = client.db(dbName);
+    const collection = db.collection('matchhistory');
+    const insertResult = await collection.insertOne(jsonEntry);
+    // the following code examples can be pasted here...
+
 }
 
 const broadcast = (message) => {
