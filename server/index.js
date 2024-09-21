@@ -45,6 +45,7 @@ let allChamps = [
     "Naafiri", "Hwei", "Smolder", "Aurora"
 ]
 let champs = []
+let lastMatch = {}
 
 const handleMessage = (bytes, uuid) => {
     const request = JSON.parse(bytes.toString())
@@ -52,8 +53,7 @@ const handleMessage = (bytes, uuid) => {
     let team
     switch (request["action"]) {
         case "register":
-            message.action = "playerList"
-            message.payload = players
+            message = getPlayerList()
             broadcast(message)
             break;
         case "startGame":
@@ -111,18 +111,16 @@ const handleMessage = (bytes, uuid) => {
             let dbEntry = {
                 winner:vote
             }
-            dbEntry["team0"] = Object.keys(teams[0]).map((uuid) => {
-                return{
-                    username : players[uuid].username,
-                    champName: players[uuid].state.selectedChampion
+            dbEntry.teams = []
+            teams.forEach(team =>{
+                dbEntry.teams.push(Object.keys(team).map((uuid) => {
+                    return {
+                        username : players[uuid].username,
+                        champName: players[uuid].state.selectedChampion
+                    }
+                }))
                 }
-            })
-            dbEntry["team1"] = Object.keys(teams[1]).map((uuid) => {
-                return{
-                    username : players[uuid].username,
-                    champName: players[uuid].state.selectedChampion
-                }
-            })
+            )
             dbEntry.timestamp = new Date(Date.now()).toISOString()
             writeDB(dbEntry)
                 .then(result => {console.log(result)})
@@ -133,6 +131,31 @@ const handleMessage = (bytes, uuid) => {
             console.log(request)
             break;
     }
+}
+
+const getPlayerList = () => {
+    let message = {}
+    message.action = "playerList"
+    message.payload = {}
+    message.payload.players = players
+    message.payload.lastMatch = lastMatch
+    return message
+}
+
+async function getLatestMatch ()  {
+    await client.connect();
+    console.log('Connected successfully to server');
+    const db = client.db(dbName);
+    const collection = db.collection('matchhistory');
+    const matches = await collection.find().toArray();
+    console.log(matches)
+    lastMatch =  matches.sort((a, b) => {
+        let dateA = new Date(a.timestamp)
+        let dateB = new Date(b.timestamp)
+        return dateB- dateA
+    },1)[0]
+    console.log("fetched "+lastMatch)
+    // the following code examples can be pasted here...
 }
 
 const checkStartCondition = () => {
@@ -192,9 +215,7 @@ const endGame = () => {
     Object.keys(players).forEach(uuid => {
         players[uuid].state = getDefaultPlayerState()
     })
-    let message = {}
-    message.action = "playerList"
-    message.payload = players
+    let message = getPlayerList()
     broadcast(message)
 }
 
@@ -245,6 +266,8 @@ const getDefaultPlayerState = () => {
         team:-1
     }
 }
+
+setInterval(() => getLatestMatch(), 10000)
 
 wsServer.on("connection", (connection, request) => {
     const { username } = url.parse(request.url, true).query

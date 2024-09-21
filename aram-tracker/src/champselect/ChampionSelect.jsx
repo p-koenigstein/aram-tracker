@@ -42,7 +42,7 @@ function ChampionIcon ({champ, onClick}) {
 }
 
 export function PlayerSlot ({selectedChamp, playerName, lockedIn})  {
-    return <div className={lockedIn ? "lockedIn" : ""}>
+    return <div className={"playerSlot"+ (lockedIn ? "lockedIn" : "")}>
         <div><ChampionIcon champ={selectedChamp}  onClick={() => {}}/></div>
         <div className={"playerName"}>{playerName}</div>
     </div>

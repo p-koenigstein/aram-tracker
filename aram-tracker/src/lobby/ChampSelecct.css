@@ -74,3 +74,25 @@
     margin:10px;
     padding:10px;
 }
+
+.winnerTeam{
+    display:inline-block;
+    background-color:lightgreen;
+}
+
+.loserTeam{
+    display:inline-block;
+    background-color:lightcoral;
+}
+
+.matchHistoryElement .playerName{
+    color:black !important;
+}
+
+.matchHistoryElement .playerSlot{
+    display: inline-block;
+}
+
+.playerSlot{
+    padding:5px;
+}

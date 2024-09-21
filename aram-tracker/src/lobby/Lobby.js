@@ -5,6 +5,7 @@ import {PlayerList} from "./PlayerList";
 import ChampionSelect from "../champselect/ChampionSelect";
 import './ChampSelecct.css'
 import {HeadsUp} from "../champselect/HeadsUp";
+import {MatchSummary} from "./MatchSummary";
 
 export function Lobby ({username}) {
     const WS_URL = process.env.REACT_APP_WS_URL;
@@ -17,6 +18,7 @@ export function Lobby ({username}) {
     const [completeDraft, setCompleteDraft] = useState([])
     const [draftComplete, setDraftComplete] = useState(false)
     const [teamNames, setTeamNames] = useState([])
+    const [lastGame, setLastGame] = useState({})
 
     console.log(WS_URL)
 
@@ -36,10 +38,12 @@ export function Lobby ({username}) {
             let payload
             switch (lastJsonMessage["action"]){
                 case "playerList":
-                    let currentPlayers = Object.keys(lastJsonMessage["payload"]).map(
-                        ((key) => lastJsonMessage["payload"][key]["username"])
+                    let currentPlayers = Object.keys(lastJsonMessage.payload.players).map(
+                        ((key) => lastJsonMessage.payload.players[key].username)
                     )
                     setPlayers(currentPlayers)
+                    setLastGame(lastJsonMessage.payload.lastMatch)
+                    console.log(lastJsonMessage)
                     setStatus("lobby")
                     break;
                 case "startGame":
@@ -92,6 +96,7 @@ export function Lobby ({username}) {
     switch (status) {
         case "lobby":
             return <div>
+                {Object.keys(lastGame).length >0 ? (<MatchSummary lastMatch={lastGame}/>) : <div/>}
                 <PlayerList players={players} startGame={startGame}/>
             </div>
         case "draft":
