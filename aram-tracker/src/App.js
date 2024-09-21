@@ -29,7 +29,7 @@ function App() {
   }
 
     useEffect(() => {
-        if (!process.env.REACT_APP_IS_DEV){
+        if (process.env.REACT_APP_IS_DEV==="false"){
             setUserName(cookies["username"])
         }
     }, [cookies["username"]]);
