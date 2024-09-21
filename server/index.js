@@ -10,6 +10,8 @@ const wsServer = new WebSocketServer({server})
 const port = 8000
 
 let players = {}
+let playerMapping = {}
+
 let connections = {}
 
 let gameCountdown = null
@@ -50,21 +52,24 @@ const handleMessage = (bytes, uuid) => {
             break;
         case "startGame":
             message.action = "startGame"
-            //shuffle keys
-            const randomOrder = Object.keys(players).sort((a,b) => 0.5 - Math.random())
-            let current_team = 0
-            for (let playerUUID in randomOrder){
-                let currentUUID = randomOrder[playerUUID]
-                teams[current_team][currentUUID] = players[currentUUID]
-                players[currentUUID].state.team = current_team
-                current_team = (current_team +1) % 2
-            }
-            getDraft()
-            for (let team=0;team<2;team++){
-                message.payload= {}
-                message.payload.team = teams[team]
-                message.payload.availableChamps = champs[team]
-                broadcastTeam(message,team)
+            if (Object.keys(players).length>1) {
+                //shuffle keys
+                const randomOrder = Object.keys(players).sort((a, b) => 0.5 - Math.random())
+                let current_team = 0
+                console.log(teams)
+                for (let playerUUID in randomOrder) {
+                    let currentUUID = randomOrder[playerUUID]
+                    teams[current_team][currentUUID] = players[currentUUID]
+                    players[currentUUID].state.team = current_team
+                    current_team = (current_team + 1) % 2
+                }
+                getDraft()
+                for (let team = 0; team < 2; team++) {
+                    message.payload = {}
+                    message.payload.team = teams[team]
+                    message.payload.availableChamps = champs[team]
+                    broadcastTeam(message, team)
+                }
             }
             /// custom br
             break;
@@ -91,6 +96,10 @@ const handleMessage = (bytes, uuid) => {
             message.payload.team = teams[team]
             broadcastTeam(message, team)
             checkStartCondition()
+            break;
+        case "vote":
+            //TODO
+            endGame()
             break;
         default:
             console.log(request)
@@ -138,8 +147,23 @@ const getDraft = () => {
 const broadcastTeam = (message, team) => {
     Object.keys(teams[team]).forEach(uuid => {
         const connection = connections[uuid]
-        connection.send(JSON.stringify(message))
+        if (connection) {
+            connection.send(JSON.stringify(message))
+        }
     })
+}
+
+const endGame = () => {
+    console.log("end game")
+    champs = []
+    teams = [{},{}]
+    Object.keys(players).forEach(uuid => {
+        players[uuid].state = getDefaultPlayerState()
+    })
+    let message = {}
+    message.action = "playerList"
+    message.payload = players
+    broadcast(message)
 }
 
 const handleClose = (uuid) => {
@@ -165,8 +189,18 @@ const broadcast = (message) => {
     console.log(message)
     Object.keys(connections).forEach(uuid => {
         const connection = connections[uuid]
-        connection.send(JSON.stringify(message))
+        if (connection) {
+            connection.send(JSON.stringify(message))
+        }
     })
+}
+
+const getDefaultPlayerState = () => {
+    return {
+        selectedChampion:"",
+        lockedIn:false,
+        team:-1
+    }
 }
 
 wsServer.on("connection", (connection, request) => {
@@ -174,11 +208,7 @@ wsServer.on("connection", (connection, request) => {
     const uuid = uuidv4()
     players[uuid] = {
         username,
-        state : {
-            selectedChampion:"",
-            lockedIn:false,
-            team:-1
-        }
+        state : getDefaultPlayerState()
     }
     connections[uuid] = connection
     connection.on("message", message => handleMessage(message, uuid))

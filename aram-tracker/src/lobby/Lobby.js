@@ -40,6 +40,7 @@ export function Lobby ({username}) {
                         ((key) => lastJsonMessage["payload"][key]["username"])
                     )
                     setPlayers(currentPlayers)
+                    setStatus("lobby")
                     break;
                 case "startGame":
                     ///TODO
