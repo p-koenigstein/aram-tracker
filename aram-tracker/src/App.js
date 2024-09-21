@@ -6,17 +6,17 @@ import Lobby from "./lobby/Lobby";
 import ChampionSelect from "./champselect/ChampionSelect";
 import {Login} from "./landingpage/Login";
 import {Overview} from "./landingpage/Overview";
-import {BrowserRouter, Outlet, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Outlet, Route, Routes, useNavigate} from "react-router-dom";
 import {LeaderBoard} from "./leaderboard/LeaderBoard";
 import {useCookies} from "react-cookie";
 import {UserInfo} from "./landingpage/UserInfo";
 import {MatchHistory} from "./matchhistory/MatchHistory";
+import {WelcomePage} from "./landingpage/WelcomePage";
 
 function App() {
 
   const [userName, setUserName] = useState("");
   const [cookies, setCookies, deleteCookie] = useCookies(["customaram"]);
-
 
   const updateUserName = (userName) => {
       setUserName(userName);
@@ -39,16 +39,10 @@ function App() {
   return <BrowserRouter>
       <Routes>
           <Route path="/" element={<UserInfo username={userName} logout={logout}/>}>
-              {userName==="" &&
-                  <Route path="/*" element={<Login onSubmit={updateUserName}/>}/>
-                      }
-              {userName!=="" &&
-                  <Fragment>
-            <Route path="lobby" element={<Lobby username={userName}/>}/>
-            <Route path="leaderboard" element={<LeaderBoard userName={userName}/>}/>
-              <Route path="matchhistory" element={<MatchHistory/>}/>
-                  </Fragment>
-             }
+              <Route path="/" element={userName===""? <Login onSubmit={updateUserName}/> : <WelcomePage username={userName}/>}/>
+              <Route path="lobby" element={userName===""? <Login onSubmit={updateUserName}/> : <Lobby username={userName}/>}/>
+              <Route path="leaderboard" element={userName===""? <Login onSubmit={updateUserName}/> : <LeaderBoard userName={userName}/>}/>
+              <Route path="matchhistory" element={userName===""? <Login onSubmit={updateUserName}/> : <MatchHistory/>}/>
           </Route>
       </Routes>
   </BrowserRouter>
