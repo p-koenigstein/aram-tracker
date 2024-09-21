@@ -33,12 +33,20 @@
     background-color:teal
 }
 
-.team:nth-child(0){
-    float:left
+.team{
+    display:inline-block;
+    padding:10px;
+    margin:40px;
+}
+
+.team:nth-child(2){
+    float:left;
+    background-color:crimson;
 }
 
 .team:nth-child(1){
-    float:right
+    float:right;
+    background-color:dodgerblue;
 }
 
 .userInfo{
@@ -53,4 +61,16 @@
 
 .userName{
     display:inline;
+}
+
+.winButtonContainer{
+    clear:both;
+    margin:auto;
+    width:fit-content;
+    horiz-align: center;
+}
+
+.winButtonContainer Button{
+    margin:10px;
+    padding:10px;
 }

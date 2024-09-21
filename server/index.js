@@ -89,13 +89,15 @@ const handleMessage = (bytes, uuid) => {
             }
             break;
         case "confirmChampion":
-            team = players[uuid].state.team
-            teams[team][uuid].state.lockedIn = true
-            message.action = "updateChamps"
-            message.payload = {}
-            message.payload.team = teams[team]
-            broadcastTeam(message, team)
-            checkStartCondition()
+            if (players[uuid].state.selectedChampion !=="") {
+                players[uuid].state.lockedIn = true
+                team = players[uuid].state.team
+                message.action = "updateChamps"
+                message.payload = {}
+                message.payload.team = teams[team]
+                broadcastTeam(message, team)
+                checkStartCondition()
+            }
             break;
         case "vote":
             //TODO
