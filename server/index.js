@@ -113,7 +113,7 @@ const startGame = () => {
     message.payload = {}
     message.payload.teams = teams
     broadcast(message)
-    setTimeout(() => {displayWinnerButtons()}, 2000)
+    setTimeout(() => {displayWinnerButtons()}, process.env.GAME_END_DELAY)
 }
 
 const displayWinnerButtons = () =>{
