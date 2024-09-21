@@ -52,6 +52,7 @@
 .userInfo{
     padding-bottom:10px;
     border-bottom:2px double #330019;
+    font-size:140%;
 }
 
 .logout{
@@ -95,4 +96,15 @@
 
 .playerSlot{
     padding:5px;
+}
+
+.userInfo a{
+    text-decoration: none;
+    color:#171717;
+    font-weight: bold;
+    margin:10px;
+}
+
+.userInfo a:hover{
+    color:darkred;
 }

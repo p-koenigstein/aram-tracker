@@ -1,12 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import {useEffect, useState} from "react";
+import {Fragment, useEffect, useState} from "react";
 import axios from "axios";
 import Lobby from "./lobby/Lobby";
 import ChampionSelect from "./champselect/ChampionSelect";
 import {Login} from "./landingpage/Login";
 import {Overview} from "./landingpage/Overview";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Outlet, Route, Routes} from "react-router-dom";
 import {LeaderBoard} from "./leaderboard/LeaderBoard";
 import {useCookies} from "react-cookie";
 import {UserInfo} from "./landingpage/UserInfo";
@@ -39,10 +39,16 @@ function App() {
   return <BrowserRouter>
       <Routes>
           <Route path="/" element={<UserInfo username={userName} logout={logout}/>}>
-            <Route path="/" element={<Overview />}/>
-            <Route path="lobby" element={userName ? <Lobby username={userName}/>:<Login onSubmit={updateUserName}/>}/>
+              {userName==="" &&
+                  <Route path="/*" element={<Login onSubmit={updateUserName}/>}/>
+                      }
+              {userName!=="" &&
+                  <Fragment>
+            <Route path="lobby" element={<Lobby username={userName}/>}/>
             <Route path="leaderboard" element={<LeaderBoard userName={userName}/>}/>
               <Route path="matchhistory" element={<MatchHistory/>}/>
+                  </Fragment>
+             }
           </Route>
       </Routes>
   </BrowserRouter>

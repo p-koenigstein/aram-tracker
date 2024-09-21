@@ -39,7 +39,7 @@ export function MatchHistory ({})  {
                             {
                                 match.teams.map((team, index) => {
                                     return (
-                                        <Col className={"matchHistoryElement " + (match.winner===index ? 'winnerTeam' : 'loserTeam')}>
+                                        <div className={"matchHistoryElement " + (match.winner===index ? 'winnerTeam' : 'loserTeam')}>
                                             {
                                                 team.map((player) => {
                                                     return (
@@ -49,7 +49,7 @@ export function MatchHistory ({})  {
                                                     )
                                                 })
                                             }
-                                        </Col>
+                                        </div>
                                     )
                                 })
                             }
