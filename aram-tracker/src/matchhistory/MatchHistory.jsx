@@ -43,9 +43,7 @@ export function MatchHistory ({})  {
                                             {
                                                 team.map((player) => {
                                                     return (
-                                                        <div>
                                                             <PlayerSlot playerName={player.username} selectedChamp={player.champName} lockedIn={false} />
-                                                        </div>
                                                     )
                                                 })
                                             }
