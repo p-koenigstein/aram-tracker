@@ -126,11 +126,15 @@ const startGame = () => {
 }
 
 const displayWinnerButtons = () =>{
+    console.log(teams)
     let message = {}
     message.action = "gameFinish"
     message.payload ={}
     message.payload.teamNames = teams.map(team => {
-        let teamLeader = Object.keys(team).sort((p1,p2) => 0.5 - Math.random())
+        let teamLeader = Object.keys(team).sort((p1,p2) => 0.5 - Math.random())[0]
+        console.log(team)
+        console.log(teamLeader)
+        console.log(team[teamLeader])
         return "Team "+team[teamLeader].username
     })
     broadcast(message)
@@ -186,7 +190,6 @@ const handleDisconnect = (uuid) => {
 }
 
 const broadcast = (message) => {
-    console.log(message)
     Object.keys(connections).forEach(uuid => {
         const connection = connections[uuid]
         if (connection) {
