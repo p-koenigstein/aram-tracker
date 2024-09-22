@@ -209,7 +209,7 @@ const sendLatestMatch = () => {
 
 const checkStartCondition = () => {
     let not_ready_players = Object.keys(players).filter(
-        (key) => !players[key].state.lockedIn
+        (key) => !players[key].state.lockedIn && players[key].state.inLobby
     )
     if (not_ready_players.length === 0){
         startGame()
