@@ -46,6 +46,7 @@ let allChamps = [
 ]
 let champs = []
 let lastMatch = {}
+let status = "lobby"
 
 const handleMessage = (bytes, uuid) => {
     const request = JSON.parse(bytes.toString())
@@ -74,12 +75,15 @@ const handleMessage = (bytes, uuid) => {
                     current_team = (current_team + 1) % 2
                 }
                 getDraft()
+                status = "draft"
                 for (let team = 0; team < 2; team++) {
                     message.payload = {}
                     message.payload.team = teams[team]
                     message.payload.availableChamps = champs[team]
+                    message.payload.status = status
                     broadcastTeam(message, team)
                 }
+                updateStatus()
             }
             /// custom br
             break;
@@ -146,12 +150,10 @@ const getPlayerList = () => {
     let message = {}
     message.action = "playerList"
     message.payload = {}
-    console.log(players)
-    console.log(Object.entries(players))
     message.payload.players = Object.fromEntries(Object.entries(players).filter(([uuid, player]) => {
         return player.state.inLobby
     }))
-    console.log(message)
+    message.payload.status = status
     sendLatestMatch()
     return message
 }
@@ -216,10 +218,21 @@ const checkStartCondition = () => {
     }
 }
 
+const updateStatus = () => {
+    let message = {
+        action:"updateStatus",
+        payload : {
+            status: status
+        }
+    }
+    broadcast(message)
+}
+
 const startGame = () => {
     let message = {}
     message.action = "finishDraft"
     message.payload = {}
+    message.payload.status = "game"
     message.payload.teams = teams
     broadcast(message)
     setTimeout(() => {displayWinnerButtons()}, process.env.GAME_END_DELAY)
@@ -256,6 +269,7 @@ const broadcastTeam = (message, team) => {
 const endGame = () => {
     champs = []
     teams = [{},{}]
+    status = "lobby"
     Object.keys(players).forEach(uuid => {
         players[uuid].state = getDefaultPlayerState()
     })

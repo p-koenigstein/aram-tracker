@@ -18,6 +18,13 @@ export function Lobby ({username}) {
     const [draftComplete, setDraftComplete] = useState(false)
     const [teamNames, setTeamNames] = useState([])
     const [lastGame, setLastGame] = useState({})
+    const [inLobby, setInLobby] = useState(false);
+
+
+    useEffect(() => {
+        setInLobby(players.includes(username))
+    }, [username, players]);
+
 
     console.log(WS_URL)
 
@@ -35,7 +42,7 @@ export function Lobby ({username}) {
         // console.log(currentPlayers)
         if (lastJsonMessage !== null){
             let payload
-            switch (lastJsonMessage["action"]){
+            switch (lastJsonMessage.action){
                 case "playerList":
                     console.log(lastJsonMessage.payload)
                     let currentPlayers = Object.keys(lastJsonMessage.payload.players).map(
@@ -43,34 +50,34 @@ export function Lobby ({username}) {
                     )
                     console.log(currentPlayers)
                     setPlayers(currentPlayers)
-                    setStatus("lobby")
+                    setStatus(lastJsonMessage.payload.status)
+                    break;
+                case "updateStatus":
+                    setStatus(lastJsonMessage.payload.status)
                     break;
                 case "startGame":
-                    ///TODO
-                    payload = lastJsonMessage["payload"]
-                    setAvailableChamps(payload["availableChamps"])
-                    setTeam(payload["team"])
-                    setStatus("draft")
+                    payload = lastJsonMessage.payload
+                    setAvailableChamps(payload.availableChamps)
+                    setTeam(payload.team)
+                    setStatus(payload.status)
                     // setStarted(true)
                     break;
                 case "updateChamps":
-                    payload = lastJsonMessage["payload"]
+                    payload = lastJsonMessage.payload
                     let newTeam = payload.team
                     setTeam(newTeam)
                     break;
                 case "finishDraft":
-                    payload = lastJsonMessage["payload"]
-                    console.log(lastJsonMessage)
+                    payload = lastJsonMessage.payload
                     setCompleteDraft(payload.teams)
                     setDraftComplete(true)
-                    setStatus("game")
+                    setStatus(payload.status)
                     break;
                 case "gameFinish":
-                    payload = lastJsonMessage["payload"]
+                    payload = lastJsonMessage.payload
                     setTeamNames(payload.teamNames)
                     break;
                 case "updateLatestMatch":
-                    console.log(lastJsonMessage)
                     setLastGame(lastJsonMessage.payload)
                     break;
                 default:
@@ -96,17 +103,21 @@ export function Lobby ({username}) {
         sendJsonMessage({action:"confirmChampion", payload:{}})
     }
 
-    console.log(status)
+    console.log("Status: "+status)
     switch (status) {
         case "lobby":
             return <div>
                 {Object.keys(lastGame).length >0 ? (<MatchSummary lastMatch={lastGame}/>) : <div/>}
-                <PlayerList username={username} players={players} startGame={startGame} joinGame={joinGame}/>
+                <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={false} inLobby={inLobby}/>
             </div>
         case "draft":
             return <div>
+                {inLobby ?
                 <ChampionSelect username={username} playerAmount={Object.keys(team).length} selectChampion={selectChampion} availableChampions={availableChamps} players={team} confirmChampion={confirmChampion}/>
-            </div>
+                :
+                    <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={true} inLobby={inLobby}/>
+                }
+                </div>
         case "game":
             return <div>
                 <HeadsUp teams={completeDraft} teamNames={teamNames} sendJsonMessage={sendJsonMessage}/>

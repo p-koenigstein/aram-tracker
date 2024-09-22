@@ -2,16 +2,31 @@ import {Button, ListGroup, ListGroupItem} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 
 
-export function PlayerList({username, players, startGame, joinGame}) {
+export function PlayerList({inLobby, players, startGame, joinGame, started}) {
 
-    const [inLobby, setInLobby] = useState(false);
+    const [buttonText, setButtonText] = useState("");
+    const [buttonDisabled, setButtonDisabled] = useState(false);
+
+    useEffect(() => {
+        if(!inLobby){
+            if(started) {
+                setButtonText("Champions werden ausgewählt")
+                setButtonDisabled(true)
+            }
+            else{
+                setButtonDisabled(false)
+                setButtonText(outLobbyText)
+            }
+        }
+        else{
+            setButtonDisabled(false)
+            setButtonText(inLobbyText)
+        }
+
+    }, [started, inLobby]);
 
     const inLobbyText = "Spiel starten"
     const outLobbyText = "Lobby beitreten"
-
-    useEffect(() => {
-        setInLobby(players.includes(username))
-    }, [username, players]);
 
     return (
         <div className={"horiz defaultPadding"}>
@@ -35,9 +50,8 @@ export function PlayerList({username, players, startGame, joinGame}) {
                 <Button
                     onClick={inLobby ? startGame : joinGame}
                     variant={inLobby ? "warning" : "success"}
-                    title={"test"}
-                    disabled={true}
-                >{inLobby ? inLobbyText : outLobbyText}</Button>
+                    disabled={buttonDisabled}
+                >{buttonText}</Button>
             </div>
         </div>
     )
