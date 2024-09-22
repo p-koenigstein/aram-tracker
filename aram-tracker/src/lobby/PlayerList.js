@@ -35,6 +35,8 @@ export function PlayerList({username, players, startGame, joinGame}) {
                 <Button
                     onClick={inLobby ? startGame : joinGame}
                     variant={inLobby ? "warning" : "success"}
+                    title={"test"}
+                    disabled={true}
                 >{inLobby ? inLobbyText : outLobbyText}</Button>
             </div>
         </div>
