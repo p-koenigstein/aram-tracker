@@ -203,11 +203,13 @@ function getLatestMatch ()  {
 }
 
 const sendLatestMatch = () => {
-    let message = {
-        action:"updateLatestMatch"
+    if(lastMatch){
+        let message = {
+            action:"updateLatestMatch"
+        }
+        message.payload = lastMatch
+        broadcast(message)
     }
-    message.payload = lastMatch
-    broadcast(message)
 }
 
 const checkStartCondition = () => {
