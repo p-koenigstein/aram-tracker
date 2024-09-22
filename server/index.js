@@ -3,7 +3,8 @@
 const http = require('http')
 const {MongoClient} = require('mongodb')
 
-const dbUrl = 'mongodb://localhost:27017';
+const dbUrl = process.env.MONGODB_URI;
+console.log(dbUrl)
 const client = new MongoClient(dbUrl);
 const dbName = 'aramTracker';
 
@@ -64,7 +65,7 @@ const handleMessage = (bytes, uuid) => {
             break;
         case "startGame":
             message.action = "startGame"
-            if (Object.keys(players).length>1) {
+            if (Object.keys(players).filter((uuid) => players[uuid].state.inLobby).length>1) {
                 //shuffle keys
                 const randomOrder = Object.keys(players).filter((player) => players[player].state.inLobby===true).sort((a, b) => 0.5 - Math.random())
                 let current_team = 0
@@ -283,16 +284,13 @@ const handleClose = (uuid) => {
 }
 
 const handleDisconnect = (uuid) => {
-    let message = {}
-    message.action = "playerList"
-    message.payload = players
     let team = players[uuid].state.team
     if (team>-1){
         delete teams[team][uuid]
     }
     delete connections[uuid]
     delete players[uuid]
-
+    let message = getPlayerList()
     broadcast(message)
 }
 
