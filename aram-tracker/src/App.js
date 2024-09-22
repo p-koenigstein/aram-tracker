@@ -28,7 +28,6 @@ function App() {
   const logout = () => {
       deleteCookie("username")
       setUserName("")
-      console.log("logout")
   }
 
     useEffect(() => {
@@ -37,6 +36,7 @@ function App() {
         }
     }, [cookies["username"]]);
 
+  console.log(userName)
 
   return <BrowserRouter>
       <Routes>
