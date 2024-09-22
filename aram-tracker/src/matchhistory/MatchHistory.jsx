@@ -10,7 +10,7 @@ export function MatchHistory ({})  {
     const [matches, setMatches] = useState([]);
     const [page, setPage] = useState(1);
 
-    const matchesPerPage = 4;
+    const matchesPerPage = 2;
 
     const previousPage = () => {
         if (page>1){
@@ -46,13 +46,13 @@ export function MatchHistory ({})  {
 
 
     return (
-    <div>
-        <ListGroup>
+    <div className={"matchHistory"}>
+        <div>
         {
             matches.slice((page-1)*matchesPerPage, page * matchesPerPage).map((match)=>{
                 return (
-                    <Table className={"matchHistoryEntry"}>
-                        <Row>
+                    <div className={"matchHistoryEntry"}>
+                        <div>
                             {
                                 match.teams.map((team, index) => {
                                     return (
@@ -68,12 +68,12 @@ export function MatchHistory ({})  {
                                     )
                                 })
                             }
-                        </Row>
-                    </Table>
+                        </div>
+                    </div>
                 )
             })
         }
-    </ListGroup>
+    </div>
         <div className={"pageNavigation"}>
             <Button onClick={() => previousPage()} variant={"dark"}>&lt;</Button>
             {

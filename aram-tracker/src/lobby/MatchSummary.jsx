@@ -5,14 +5,14 @@ import {PlayerSlot} from "../champselect/ChampionSelect";
 export function MatchSummary({lastMatch})  {
 
     return (
-        <div>
+        <div className={"matchHistoryEntry"}>
             <h3>Last Match:</h3>
-            <Table>
-                <Row>
+            <div>
+                <div>
                     {
                         lastMatch.teams.map((team, index) => {
                             return (
-                            <Col className={"matchHistoryElement " + (lastMatch.winner===index ? 'winnerTeam' : 'loserTeam')}>
+                            <div className={"matchHistoryElement " + (lastMatch.winner===index ? 'winnerTeam' : 'loserTeam')}>
                                 {
                                     Object.keys(team).map((name) => {
                                         let player = team[name]
@@ -23,12 +23,12 @@ export function MatchSummary({lastMatch})  {
                                         )
                                     })
                                 }
-                            </Col>
+                            </div>
                             )
                         })
                     }
-                </Row>
-            </Table>
+                </div>
+            </div>
         </div>
     )
 }

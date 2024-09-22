@@ -10,17 +10,17 @@ export function UserInfo({username, logout}) {
             <div className={"userInfo"}>
                 <Navbar>
                     <div>
-                    <div className={"userName"}>
-                        Hello, {username}!
+                        <Link to="/lobby">Lobby</Link>
+                        <Link to="/leaderboard">Rangliste</Link>
+                        <Link to="/matchhistory">Spielverlauf</Link>
+                        <div className={"logout"}>
+                            <div className={"userName"}>
+                            Logged in as {username}
+                            </div>
+                            <Button onClick={logout}>Log out</Button>
+                        </div>
                     </div>
-                    <div className={"logout"}>
-                        <Button onClick={logout}>Log out</Button>
-                    </div>
-                    </div>
-            <Link to="/lobby">Lobby</Link>
-            <Link to="/leaderboard">Rangliste</Link>
-            <Link to="/matchhistory">Spielverlauf</Link>
-            </Navbar>
+                </Navbar>
 
             </div>
             : <div/>
