@@ -12,6 +12,8 @@ import {useCookies} from "react-cookie";
 import {UserInfo} from "./landingpage/UserInfo";
 import {MatchHistory} from "./matchhistory/MatchHistory";
 import {WelcomePage} from "./landingpage/WelcomePage";
+import './lobby/ChampSelecct.css'
+import 'bootstrap/dist/css/bootstrap.css'
 
 function App() {
 

@@ -75,17 +75,17 @@ export function MatchHistory ({})  {
         }
     </ListGroup>
         <div className={"pageNavigation"}>
-            <Button onClick={() => previousPage()}>&lt;</Button>
+            <Button onClick={() => previousPage()} variant={"dark"}>&lt;</Button>
             {
                 [...Array(Math.ceil(matches.length/matchesPerPage)).keys()].map(
                     (pageNumber) =>
-                        <Button onClick={()=>setPage(pageNumber+1)}>
+                        <Button onClick={()=>setPage(pageNumber+1)} variant={pageNumber+1 === page?"warning":"dark"}>
                             {pageNumber+1}
                         </Button>
 
                 )
             }
-            <Button onClick={() => nextPage()}>&gt;</Button>
+            <Button onClick={() => nextPage()} variant={"dark"}>&gt;</Button>
         </div>
 
     </div>)

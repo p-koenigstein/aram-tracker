@@ -116,3 +116,7 @@
 .userInfo a:hover{
     color:darkred;
 }
+
+.pageNavigation button{
+    margin:1px;
+}

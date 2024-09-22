@@ -3,7 +3,6 @@ import useWebSocket from "react-use-websocket";
 import {useEffect, useState} from "react";
 import {PlayerList} from "./PlayerList";
 import ChampionSelect from "../champselect/ChampionSelect";
-import './ChampSelecct.css'
 import {HeadsUp} from "../champselect/HeadsUp";
 import {MatchSummary} from "./MatchSummary";
 
