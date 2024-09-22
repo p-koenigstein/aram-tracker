@@ -172,3 +172,7 @@
 .playerList{
     min-width: 300px;
 }
+
+.unselectable{
+    user-select: none;
+}

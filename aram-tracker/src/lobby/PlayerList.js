@@ -26,12 +26,17 @@ export function PlayerList({username, players, startGame, joinGame}) {
                 )}
                 {
                     players.length === 0 &&
-                    <ListGroupItem variant={"dark"} unselectable={true}>
+                    <ListGroupItem className={"unselectable"} variant={"dark"}>
                         Sehr leer hier ....
                     </ListGroupItem>
                 }
             </ListGroup>
-            <div className={"horiz defaultPadding"}><Button onClick={inLobby ? startGame : joinGame}>{inLobby ? inLobbyText : outLobbyText}</Button></div>
+            <div className={"horiz defaultPadding"}>
+                <Button
+                    onClick={inLobby ? startGame : joinGame}
+                    variant={inLobby ? "warning" : "success"}
+                >{inLobby ? inLobbyText : outLobbyText}</Button>
+            </div>
         </div>
     )
 }
