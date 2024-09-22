@@ -1,5 +1,5 @@
 import useWebSocket from "react-use-websocket";
-import {Col, ListGroup, Row, Table} from "react-bootstrap";
+import {Button, Col, ListGroup, Row, Table} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {PlayerSlot} from "../champselect/ChampionSelect";
 
@@ -8,6 +8,21 @@ export function MatchHistory ({})  {
 
     const [loading, setLoading] = useState(true);
     const [matches, setMatches] = useState([]);
+    const [page, setPage] = useState(1);
+
+    const matchesPerPage = 4;
+
+    const previousPage = () => {
+        if (page>1){
+            setPage(page-1)
+        }
+    }
+
+    const nextPage = () => {
+        if (page<Math.ceil(matches.length/matchesPerPage)){
+            setPage(page+1)
+        }
+    }
 
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(process.env.REACT_APP_WS_URL,
         {
@@ -30,11 +45,13 @@ export function MatchHistory ({})  {
     }, [lastJsonMessage]);
 
 
-    return <ListGroup>
+    return (
+    <div>
+        <ListGroup>
         {
-            matches.map((match)=>{
+            matches.slice((page-1)*matchesPerPage, page * matchesPerPage).map((match)=>{
                 return (
-                    <Table>
+                    <Table className={"matchHistoryEntry"}>
                         <Row>
                             {
                                 match.teams.map((team, index) => {
@@ -57,4 +74,19 @@ export function MatchHistory ({})  {
             })
         }
     </ListGroup>
+        <div className={"pageNavigation"}>
+            <Button onClick={() => previousPage()}>&lt;</Button>
+            {
+                [...Array(Math.ceil(matches.length/matchesPerPage)).keys()].map(
+                    (pageNumber) =>
+                        <Button onClick={()=>setPage(pageNumber+1)}>
+                            {pageNumber+1}
+                        </Button>
+
+                )
+            }
+            <Button onClick={() => nextPage()}>&gt;</Button>
+        </div>
+
+    </div>)
 }

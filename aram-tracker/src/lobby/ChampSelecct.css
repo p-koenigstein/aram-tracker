@@ -86,6 +86,14 @@
     background-color:lightcoral;
 }
 
+.matchHistoryEntry{
+    margin:auto;
+}
+
+.matchHistoryElement{
+    border-radius: 15px;
+}
+
 .matchHistoryElement .playerName{
     color:black !important;
 }
