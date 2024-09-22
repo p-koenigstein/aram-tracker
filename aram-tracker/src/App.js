@@ -32,7 +32,9 @@ function App() {
 
     useEffect(() => {
         if (process.env.REACT_APP_IS_DEV==="false"){
-            setUserName(cookies["username"])
+            if(cookies["username"]) {
+                setUserName(cookies["username"])
+            }
         }
     }, [cookies["username"]]);
 
