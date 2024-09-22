@@ -5,24 +5,41 @@ import {Button} from "react-bootstrap";
 
 
 
-function ChampionSelect({availableChampions, players, selectChampion, confirmChampion}) {
+function ChampionSelect({username, availableChampions, players, selectChampion, confirmChampion}) {
 
+    const [buttonDisabled,setButtonDisabled] = useState(true);
+
+    useEffect(() => {
+        let playerObj = Object.values(players).find((player) =>{
+            return player.username===username
+        })
+        if(playerObj.state.lockedIn || playerObj.state.selectedChampion===""){
+            setButtonDisabled(true)
+        }
+        else{
+            setButtonDisabled(false)
+        }
+    },[username, players])
 
   return (
     <div className="champSelect">
-      <div className="players">
+      <div className="players borderRadius">
           {Object.keys(players).map((player) =>
                 <PlayerSlot selectedChamp={players[player].state.selectedChampion} playerName={players[player].username} key={player} lockedIn={players[player].state.lockedIn}/>
           )}
       </div>
+        <div className={"selectionActions"}>
       <div className="availableChampions">
           {availableChampions.map((champion) =>
            <ChampionIcon champ={champion} onClick={() => selectChampion(champion)} disable={false} key={champion}/>
           )}
       </div>
-        <Button onClick={() => confirmChampion()}>
+        <div className={"confirmButton"}>
+        <Button onClick={() => confirmChampion()} variant={"success"} disabled={buttonDisabled}>
             Auswahl bestätigen
         </Button>
+        </div>
+        </div>
     </div>
   );
 }
@@ -42,7 +59,7 @@ function ChampionIcon ({champ, onClick}) {
 }
 
 export function PlayerSlot ({selectedChamp, playerName, lockedIn})  {
-    return <div className={"playerSlot"+ (lockedIn ? "lockedIn" : "")}>
+    return <div className={"playerSlot "+ (lockedIn ? "lockedIn" : "")}>
         <div><ChampionIcon champ={selectedChamp}  onClick={() => {}}/></div>
         <div className={"playerName"}>{playerName}</div>
     </div>

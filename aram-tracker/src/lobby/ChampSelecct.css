@@ -11,7 +11,11 @@
 
 .champSelect{
     background-color: #330019;
-    min-height:2000px;
+    height:calc(100vh - 62px);
+}
+
+.champSelect button{
+    padding-top: 16px;
 }
 
 .players{
@@ -37,6 +41,7 @@
     display:inline-block;
     padding:10px;
     margin:40px;
+    border-radius: 8px;
 }
 
 .team:nth-child(2){
@@ -137,4 +142,33 @@
 
 .matchHistory{
     padding-bottom:50px;
+}
+
+.selectionActions{
+    display:inline-block;
+}
+
+.defaultPadding{
+    padding:10px;
+}
+
+.confirmButton{
+    padding-left:16px;
+}
+
+.borderRadius{
+    border-radius: 8px;
+}
+
+.contentFit{
+    width:fit-content;
+}
+
+.horiz{
+    margin:auto;
+    width:fit-content;
+}
+
+.playerList{
+    min-width: 300px;
 }

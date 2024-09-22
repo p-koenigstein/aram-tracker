@@ -5,15 +5,18 @@ import React from "react";
 export function PlayerList({players, startGame}) {
 
     return (
-        <div>
-            <ListGroup>
+        <div className={"horiz defaultPadding"}>
+            <div className={"horiz"}>
+                <h2>Lobby</h2>
+            </div>
+            <ListGroup className={"playerList"}>
                 {players.map((player) =>
                     <ListGroupItem key={player}>
                         {player}
                     </ListGroupItem>
                 )}
             </ListGroup>
-            <Button onClick={startGame}>Spiel starten</Button>
+            <div className={"horiz defaultPadding"}><Button onClick={startGame}>Spiel starten</Button></div>
         </div>
     )
 }
