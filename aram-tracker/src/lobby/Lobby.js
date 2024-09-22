@@ -37,9 +37,11 @@ export function Lobby ({username}) {
             let payload
             switch (lastJsonMessage["action"]){
                 case "playerList":
+                    console.log(lastJsonMessage.payload)
                     let currentPlayers = Object.keys(lastJsonMessage.payload.players).map(
                         ((key) => lastJsonMessage.payload.players[key].username)
                     )
+                    console.log(currentPlayers)
                     setPlayers(currentPlayers)
                     setStatus("lobby")
                     break;
@@ -78,13 +80,15 @@ export function Lobby ({username}) {
         }
     },[lastJsonMessage])
 
+    const joinGame = () => {
+        sendJsonMessage({action:"joinLobby"})
+    }
+
     const startGame = () => {
-        console.log("starting mgae")
         sendJsonMessage({action:"startGame"})
     }
 
     const selectChampion = (champName) => {
-        console.log("selecting Champ")
         sendJsonMessage({action:"selectChampion",payload:{champName:champName}})
     }
 
@@ -97,7 +101,7 @@ export function Lobby ({username}) {
         case "lobby":
             return <div>
                 {Object.keys(lastGame).length >0 ? (<MatchSummary lastMatch={lastGame}/>) : <div/>}
-                <PlayerList players={players} startGame={startGame}/>
+                <PlayerList username={username} players={players} startGame={startGame} joinGame={joinGame}/>
             </div>
         case "draft":
             return <div>

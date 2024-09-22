@@ -56,6 +56,11 @@ const handleMessage = (bytes, uuid) => {
             message = getPlayerList()
             broadcast(message)
             break;
+        case "joinLobby":
+            players[uuid].state.inLobby = true
+            console.log(getPlayerList())
+            broadcast(getPlayerList())
+            break;
         case "startGame":
             message.action = "startGame"
             if (Object.keys(players).length>1) {
@@ -141,7 +146,12 @@ const getPlayerList = () => {
     let message = {}
     message.action = "playerList"
     message.payload = {}
-    message.payload.players = players
+    console.log(players)
+    console.log(Object.entries(players))
+    message.payload.players = Object.fromEntries(Object.entries(players).filter(([uuid, player]) => {
+        return player.state.inLobby
+    }))
+    console.log(message)
     sendLatestMatch()
     return message
 }
