@@ -10,7 +10,7 @@ export function MatchHistory ({})  {
     const [matches, setMatches] = useState([]);
     const [page, setPage] = useState(1);
 
-    const matchesPerPage = 2;
+    const matchesPerPage = 5;
 
     const previousPage = () => {
         if (page>1){

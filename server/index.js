@@ -60,7 +60,7 @@ const handleMessage = (bytes, uuid) => {
             message.action = "startGame"
             if (Object.keys(players).length>1) {
                 //shuffle keys
-                const randomOrder = Object.keys(players).sort((a, b) => 0.5 - Math.random())
+                const randomOrder = Object.keys(players).filter((player) => players[player].state.inLobby===true).sort((a, b) => 0.5 - Math.random())
                 let current_team = 0
                 for (let playerUUID in randomOrder) {
                     let currentUUID = randomOrder[playerUUID]
@@ -172,17 +172,20 @@ const getMatchHistory = (uuid) => {
         )
 }
 
-async function getLatestMatch ()  {
-    await client.connect();
-    const db = client.db(dbName);
-    const collection = db.collection('matchhistory');
-    const matches = await collection.find().toArray();
-    lastMatch =  matches.sort((a, b) => {
-        let dateA = new Date(a.timestamp)
-        let dateB = new Date(b.timestamp)
-        return dateB - dateA
-    },1)[0]
-    sendLatestMatch()
+function getLatestMatch ()  {
+    client.connect()
+        .then(() => {
+            const db = client.db(dbName);
+            const collection = db.collection('matchhistory');
+            collection.find().toArray().then((result) => {
+                lastMatch =  result.sort((a, b) => {
+                    let dateA = new Date(a.timestamp)
+                    let dateB = new Date(b.timestamp)
+                    return dateB - dateA
+                },1)[0]
+                sendLatestMatch()
+            });
+        })
     // the following code examples can be pasted here...
 }
 
@@ -293,11 +296,12 @@ const getDefaultPlayerState = () => {
     return {
         selectedChampion:"",
         lockedIn:false,
-        team:-1
+        team:-1,
+        inLobby:false
     }
 }
 
-setInterval(() => getLatestMatch(), 10000)
+getLatestMatch()
 
 wsServer.on("connection", (connection, request) => {
     const { username } = url.parse(request.url, true).query

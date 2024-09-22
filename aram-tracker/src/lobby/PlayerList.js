@@ -4,6 +4,9 @@ import React from "react";
 
 export function PlayerList({players, startGame}) {
 
+
+    const buttonText = "Spiel starten"
+
     return (
         <div className={"horiz defaultPadding"}>
             <div className={"horiz"}>
@@ -16,7 +19,7 @@ export function PlayerList({players, startGame}) {
                     </ListGroupItem>
                 )}
             </ListGroup>
-            <div className={"horiz defaultPadding"}><Button onClick={startGame}>Spiel starten</Button></div>
+            <div className={"horiz defaultPadding"}><Button onClick={startGame}>{buttonText}</Button></div>
         </div>
     )
 }
