@@ -75,6 +75,7 @@ export function MatchHistory ({})  {
         }
     </div>
         <div className={"pageNavigation"}>
+            <Button onClick={() => setPage(Math.max(1,page - 5))} variant={"dark"}>&lt;&lt;</Button>
             <Button onClick={() => previousPage()} variant={"dark"}>&lt;</Button>
             {
                 [...Array(Math.ceil(matches.length/matchesPerPage)).keys()].map(
@@ -86,6 +87,7 @@ export function MatchHistory ({})  {
                 )
             }
             <Button onClick={() => nextPage()} variant={"dark"}>&gt;</Button>
+            <Button onClick={() => setPage(Math.min(Math.ceil(matches.length/matchesPerPage),page + 5))} variant={"dark"}>&gt;&gt;</Button>
         </div>
 
     </div>)
