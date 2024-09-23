@@ -5,9 +5,9 @@ import {PlayerList} from "./PlayerList";
 import ChampionSelect from "../champselect/ChampionSelect";
 import {HeadsUp} from "../champselect/HeadsUp";
 import {MatchSummary} from "./MatchSummary";
+import {Match} from "../matchhistory/MatchHistory";
 
 export function Lobby ({username}) {
-    const WS_URL = process.env.REACT_APP_WS_URL;
 
     const [players, setPlayers] = useState([])
     const [team, setTeam] = useState({})
@@ -25,9 +25,7 @@ export function Lobby ({username}) {
         setInLobby(players.includes(username))
     }, [username, players]);
 
-
-    console.log(WS_URL)
-
+    const WS_URL = process.env.REACT_APP_WS_URL;
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(WS_URL,
         {
             share:true,
@@ -107,8 +105,12 @@ export function Lobby ({username}) {
     switch (status) {
         case "lobby":
             return <div>
-                {Object.keys(lastGame).length >0 ? (<MatchSummary lastMatch={lastGame}/>) : <div/>}
-                <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={false} inLobby={inLobby}/>
+                {Object.keys(lastGame).length >0 ? (<div className={"matchHistoryEntry"}>
+
+                    <h3 className={"matchHistoryEntry"}>Last Match:</h3>
+                    <Match match={lastGame}/>
+                </div>) : <div/>}
+                    <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={false} inLobby={inLobby}/>
             </div>
         case "draft":
             return <div>

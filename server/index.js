@@ -115,7 +115,6 @@ const handleMessage = (bytes, uuid) => {
             }
             break;
         case "vote":
-            //TODO
             let vote = request.payload.team;
             let dbEntry = {
                 winner:vote
@@ -132,7 +131,14 @@ const handleMessage = (bytes, uuid) => {
             )
             dbEntry.timestamp = new Date(Date.now()).toISOString()
             writeDB(dbEntry)
-                .then(result => {})
+                .then(result => {
+                    console.log(result)
+                    let matchId = result.insertedId
+                    console.log(matchId)
+                    appendMatch(matchId, dbEntry)
+                        .then(result => {})
+                        .catch(err => console.log(err))
+                })
                 .catch(error => {console.log(error)})
             lastMatch = dbEntry
             sendLatestMatch()
@@ -140,6 +146,19 @@ const handleMessage = (bytes, uuid) => {
             break;
         case "requestMatchHistory":
             getMatchHistory(uuid)
+            break;
+        case "requestLeaderboard":
+            getRanking()
+                .then(
+                    (ranking) => {
+                        message = {
+                            action:"leaderBoardAnswer"
+                        }
+                        message.payload = ranking
+                        console.log(message)
+                        connections[uuid].send(JSON.stringify(message))
+                    }
+                )
             break;
         default:
             console.log(request)
@@ -302,7 +321,7 @@ async function writeDB (jsonEntry) {
     await client.connect();
     const db = client.db(dbName);
     const collection = db.collection('matchhistory');
-    const insertResult = await collection.insertOne(jsonEntry);
+    return await collection.insertOne(jsonEntry);
     // the following code examples can be pasted here...
 
 }
@@ -325,6 +344,72 @@ const getDefaultPlayerState = () => {
     }
 }
 
+async function getRanking () {
+    await client.connect();
+    const db = client.db(dbName);
+    const playerCollection = db.collection('players');
+    const matchCollection = db.collection('matchhistory');
+    let playerInfo = await playerCollection.find({matchHistory:{$not:{$size:0}}}).map(
+        async (player) => {
+            return {
+                username: player.username,
+                matchHistory: await matchCollection.find({_id: {$in: player.matchHistory}}).toArray()
+            }
+        }
+    ).toArray()
+    let playerStats = []
+    for (let playerIdx in playerInfo){
+        let player = playerInfo[playerIdx]
+        let currentPlayerObject = {
+            username:player.username,
+            matchCount : player.matchHistory.length
+        }
+        currentPlayerObject.winRate = player.matchHistory.filter((match,matchIdx) => {
+            console.log(match)
+            return match.teams[match.winner].map((playerObj) => playerObj.username).includes(player.username)
+        }).length / player.matchHistory.length
+        playerStats.push(currentPlayerObject)
+    }
+    return playerStats
+}
+
+async function getPlayerMatchHistory (userName) {
+
+    await client.connect();
+    const db = client.db(dbName);
+    const playerCollection = db.collection('players');
+    const matchCollection = db.collection('matchhistory');
+    const playerAnswer = await playerCollection.find({username: userName}).toArray();
+    if (playerAnswer.length > 0){
+        let player = playerAnswer[0]
+        let matchHistory = player.matchHistory
+        return await matchCollection.find({_id:{$in:matchHistory}}).toArray()
+    }
+    return []
+}
+
+async function appendMatch (matchId, match) {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection('players');
+    let players = []
+    for (let team in match.teams){
+        for (let player in match.teams[team]){
+            players.push(match.teams[team][player].username)
+        }
+    }
+    return await collection.updateMany({username:{$in:players}}, {$push:{matchHistory:matchId}})
+}
+
+const createPlayerDBEntry = (userName) => {
+    return {
+        username:userName,
+        matchHistory:[],
+    }
+}
+
+
+
 getLatestMatch()
 
 wsServer.on("connection", (connection, request) => {
@@ -335,6 +420,25 @@ wsServer.on("connection", (connection, request) => {
         state : getDefaultPlayerState()
     }
     connections[uuid] = connection
+    if(username) {
+        client.connect()
+            .then(() => {
+                const db = client.db(dbName);
+                const collection = db.collection('players');
+                collection.find({username: username}).toArray()
+                    .then(
+                        (array) => {
+                            if (array.length === 0) {
+                                collection.insertOne(createPlayerDBEntry(username))
+                                    .then(res => {
+                                    })
+                                    .catch(err => console.log(err))
+                            }
+                        }
+                    )
+            });
+    }
+    getRanking()
     connection.on("message", message => handleMessage(message, uuid))
     connection.on("close", () => handleClose(uuid))
 })

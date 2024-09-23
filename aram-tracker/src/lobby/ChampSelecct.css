@@ -44,12 +44,12 @@
     border-radius: 8px;
 }
 
-.team:nth-child(2){
+.team:nth-child(1){
     float:left;
     background-color:crimson;
 }
 
-.team:nth-child(1){
+.team:nth-child(2){
     float:right;
     background-color:dodgerblue;
 }

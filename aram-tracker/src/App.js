@@ -12,8 +12,10 @@ import {useCookies} from "react-cookie";
 import {UserInfo} from "./landingpage/UserInfo";
 import {MatchHistory} from "./matchhistory/MatchHistory";
 import {WelcomePage} from "./landingpage/WelcomePage";
+import {Children} from "react";
 import './lobby/ChampSelecct.css'
 import 'bootstrap/dist/css/bootstrap.css'
+import useWebSocket from "react-use-websocket";
 
 function App() {
 
@@ -45,11 +47,12 @@ function App() {
           <Route path="/" element={<UserInfo username={userName} logout={logout}/>}>
               <Route path="/" element={userName===""? <Login onSubmit={updateUserName}/> : <WelcomePage username={userName}/>}/>
               <Route path="lobby" element={userName===""? <Login onSubmit={updateUserName}/> : <Lobby username={userName}/>}/>
-              <Route path="leaderboard" element={userName===""? <Login onSubmit={updateUserName}/> : <LeaderBoard userName={userName}/>}/>
+              <Route path="leaderboard" element={userName===""? <Login onSubmit={updateUserName}/> : <LeaderBoard username={userName}/>}/>
               <Route path="matchhistory" element={userName===""? <Login onSubmit={updateUserName}/> : <MatchHistory/>}/>
           </Route>
       </Routes>
   </BrowserRouter>
 
 }
+
 export default App;

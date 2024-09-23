@@ -33,10 +33,6 @@ export function MatchHistory ({})  {
         sendJsonMessage({action:"requestMatchHistory"})
     }, []);
 
-    const renderMatchDate = (date) => {
-        let realDate = new Date(date)
-        return realDate.toLocaleDateString('de-DE') + " " + realDate.getHours() + ":" +realDate.getMinutes()
-    }
 
     useEffect(() => {
 
@@ -54,30 +50,8 @@ export function MatchHistory ({})  {
     <div className={"matchHistory"}>
         <div>
         {
-            matches.slice((page-1)*matchesPerPage, page * matchesPerPage).map((match)=>{
-                return (
-                    <div className={"matchHistoryEntry"}>
-                        <div>
-                            {renderMatchDate(match.timestamp)}
-                            {
-                                match.teams.map((team, index) => {
-                                    return (
-                                        <div className={"matchHistoryElement " + (match.winner===index ? 'winnerTeam' : 'loserTeam')}>
-                                            {
-                                                team.map((player) => {
-                                                    return (
-                                                            <PlayerSlot playerName={player.username} selectedChamp={player.champName} lockedIn={false} />
-                                                    )
-                                                })
-                                            }
-                                        </div>
-                                    )
-                                })
-                            }
-                        </div>
-                    </div>
-                )
-            })
+            matches.slice((page-1)*matchesPerPage, page * matchesPerPage).map((match)=>
+            <Match match={match}/> )
         }
     </div>
         <div className={"pageNavigation"}>
@@ -97,4 +71,37 @@ export function MatchHistory ({})  {
         </div>
 
     </div>)
+}
+
+export function Match ({match}) {
+
+
+    const renderMatchDate = (date) => {
+        let realDate = new Date(date)
+        return realDate.toLocaleDateString('de-DE') + " " + realDate.getHours() + ":" +realDate.getMinutes()
+    }
+    return (
+        <div className={"matchHistoryEntry"}>
+            <h5 className={"horiz"}>
+                {renderMatchDate(match.timestamp)}
+            </h5>
+                <div>
+                {
+                    match.teams.map((team, index) => {
+                        return (
+                            <div className={"matchHistoryElement " + (match.winner===index ? 'winnerTeam' : 'loserTeam')}>
+                                {
+                                    team.map((player) => {
+                                        return (
+                                            <PlayerSlot playerName={player.username} selectedChamp={player.champName} lockedIn={false} />
+                                        )
+                                    })
+                                }
+                            </div>
+                        )
+                    })
+                }
+            </div>
+        </div>
+    )
 }
