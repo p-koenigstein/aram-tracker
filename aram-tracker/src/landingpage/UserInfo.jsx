@@ -14,6 +14,7 @@ export function UserInfo({username, logout, toggleDarkMode, useDarkMode}) {
                         <Link to="/lobby">Lobby</Link>
                         <Link to="/leaderboard">Rangliste</Link>
                         <Link to="/matchhistory">Spielverlauf</Link>
+                        <Link to="/profile">Profile</Link>
                         <div className={"logout"}>
                             Dark <Switch onChange={toggleDarkMode} checked={useDarkMode}/>
                             <div className={"userName"}>

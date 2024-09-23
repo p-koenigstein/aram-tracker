@@ -17,6 +17,7 @@ import './lobby/ChampSelecct.css'
 import 'bootstrap/dist/css/bootstrap.css'
 import useWebSocket from "react-use-websocket";
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import {Profile} from "./leaderboard/Profile";
 
 
 function App() {
@@ -77,6 +78,7 @@ function App() {
               <Route path="lobby" element={userName===""? <Login onSubmit={updateUserName}/> : <Lobby username={userName}/>}/>
               <Route path="leaderboard" element={userName===""? <Login onSubmit={updateUserName}/> : <LeaderBoard username={userName}/>}/>
               <Route path="matchhistory" element={userName===""? <Login onSubmit={updateUserName}/> : <MatchHistory/>}/>
+              <Route path="profile" element={userName==="" ? <Login onSubmit={updateUserName}/>: <Profile/>}/>
           </Route>
       </Routes>
   </BrowserRouter>
