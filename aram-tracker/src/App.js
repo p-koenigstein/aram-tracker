@@ -16,11 +16,19 @@ import {Children} from "react";
 import './lobby/ChampSelecct.css'
 import 'bootstrap/dist/css/bootstrap.css'
 import useWebSocket from "react-use-websocket";
+import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+
 
 function App() {
 
   const [userName, setUserName] = useState("");
   const [cookies, setCookies, deleteCookie] = useCookies(["customaram"]);
+  const [useDarkMode, setDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+      setCookies("darkMode",!useDarkMode)
+      setDarkMode(!useDarkMode)
+  }
 
   const updateUserName = (userName) => {
       setUserName(userName);
@@ -40,11 +48,31 @@ function App() {
         }
     }, [cookies["username"]]);
 
-  console.log(userName)
+  useEffect(() => {
+      if(cookies["darkMode"]!== undefined) {
+          console.log(cookies["darkMode"])
+          setDarkMode(cookies["darkMode"])
+      }
+  },[])
 
-  return <BrowserRouter>
+    const darkTheme = createTheme({
+        palette: {
+            mode:useDarkMode ? "dark" : "light",
+            primary:{
+                main:'#90caf9'
+            },
+            secondary:{
+                main:'#131052'
+            }
+        }
+    })
+
+  return (
+      <ThemeProvider theme={darkTheme}>
+          <CssBaseline  />
+          <BrowserRouter>
       <Routes>
-          <Route path="/" element={<UserInfo username={userName} logout={logout}/>}>
+          <Route path="/" element={<UserInfo username={userName} logout={logout} toggleDarkMode={toggleDarkMode} useDarkMode={useDarkMode}/>}>
               <Route path="/" element={userName===""? <Login onSubmit={updateUserName}/> : <WelcomePage username={userName}/>}/>
               <Route path="lobby" element={userName===""? <Login onSubmit={updateUserName}/> : <Lobby username={userName}/>}/>
               <Route path="leaderboard" element={userName===""? <Login onSubmit={updateUserName}/> : <LeaderBoard username={userName}/>}/>
@@ -52,6 +80,7 @@ function App() {
           </Route>
       </Routes>
   </BrowserRouter>
+      </ThemeProvider>)
 
 }
 
