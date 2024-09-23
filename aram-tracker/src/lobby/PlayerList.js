@@ -49,7 +49,7 @@ export function PlayerList({inLobby, players, startGame, joinGame, started}) {
             <div className={"horiz defaultPadding"}>
                 <Button
                     onClick={inLobby ? startGame : joinGame}
-                    variant={inLobby ? "warning" : "success"}
+                    variant={inLobby ? "outline-warning" : "outline-success"}
                     disabled={buttonDisabled}
                 >{buttonText}</Button>
             </div>

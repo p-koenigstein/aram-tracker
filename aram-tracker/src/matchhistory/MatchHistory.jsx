@@ -35,6 +35,7 @@ export function MatchHistory ({})  {
 export function MatchList({matches}) {
 
     const [page, setPage] = useState(1);
+    const buttonVariant = "secondary"
 
     const matchesPerPage = 5;
 
@@ -59,19 +60,19 @@ export function MatchList({matches}) {
                 }
             </div>
             <div className={"pageNavigation"}>
-                <Button onClick={() => setPage(Math.max(1,page - 5))} variant={"dark"}>&lt;&lt;</Button>
-                <Button onClick={() => previousPage()} variant={"dark"}>&lt;</Button>
+                <Button onClick={() => setPage(Math.max(1,page - 5))} variant={buttonVariant}>&lt;&lt;</Button>
+                <Button onClick={() => previousPage()} variant={buttonVariant}>&lt;</Button>
                 {
                     [...Array(Math.ceil(matches.length/matchesPerPage)).keys()].map(
                         (pageNumber) =>
-                            <Button onClick={()=>setPage(pageNumber+1)} variant={pageNumber+1 === page?"warning":"dark"}>
+                            <Button onClick={()=>setPage(pageNumber+1)} variant={pageNumber+1 === page?"warning":buttonVariant}>
                                 {pageNumber+1}
                             </Button>
 
                     )
                 }
-                <Button onClick={() => nextPage()} variant={"dark"}>&gt;</Button>
-                <Button onClick={() => setPage(Math.min(Math.ceil(matches.length/matchesPerPage),page + 5))} variant={"dark"}>&gt;&gt;</Button>
+                <Button onClick={() => nextPage()} variant={buttonVariant}>&gt;</Button>
+                <Button onClick={() => setPage(Math.min(Math.ceil(matches.length/matchesPerPage),page + 5))} variant={buttonVariant}>&gt;&gt;</Button>
             </div>
 
         </div>)

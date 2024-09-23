@@ -42,11 +42,9 @@ export function Lobby ({username}) {
             let payload
             switch (lastJsonMessage.action){
                 case "playerList":
-                    console.log(lastJsonMessage.payload)
                     let currentPlayers = Object.keys(lastJsonMessage.payload.players).map(
                         ((key) => lastJsonMessage.payload.players[key].username)
                     )
-                    console.log(currentPlayers)
                     setPlayers(currentPlayers)
                     setStatus(lastJsonMessage.payload.status)
                     break;
@@ -101,7 +99,6 @@ export function Lobby ({username}) {
         sendJsonMessage({action:"confirmChampion", payload:{}})
     }
 
-    console.log("Status: "+status)
     switch (status) {
         case "lobby":
             return <div>

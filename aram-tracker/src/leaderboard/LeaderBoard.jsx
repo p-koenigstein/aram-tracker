@@ -43,9 +43,6 @@ export function LeaderBoard({username}) {
     const renderFilterIcon = (sortType) =>{
         if (sortFn.name === sortType){
             let imgSrc = reverse?"../resources/icons/sort_1.png" : "../resources/icons/sort_2.png"
-            console.log(imgSrc)
-           // let a = require("../resources/icons/sort_1.png")
-           // let b = require("../resources/icons/sort_2.png")
             return <img className={"filterslot"} src={reverse?sort_1:sort_2} alt={"sort"} />
         }
         return <div className={"filterslot"}/>
@@ -64,7 +61,6 @@ export function LeaderBoard({username}) {
 
     useEffect(() => {
         if (lastJsonMessage !== null){
-            console.log(lastJsonMessage)
             switch (lastJsonMessage.action){
                 case "leaderBoardAnswer":
                     setLeaderboard(lastJsonMessage.payload.sort(sortFn))
@@ -77,37 +73,36 @@ export function LeaderBoard({username}) {
         <Table>
             <Row className={"leaderboard-header"}>
                 <Col>
-                    <div  className={".horiz"} onClick = {() => changeSortFunction(sortPlayerName)}>
-                    <label>{renderFilterIcon('sortPlayerName')}Player name </label>
+                    <div  className={"horiz"} onClick = {() => changeSortFunction(sortPlayerName)}>
+                    <label>{renderFilterIcon('sortPlayerName')} &nbsp;Player name </label>
                     </div>
                 </Col>
                 <Col>
-                    <div  className={".horiz"} onClick={() => changeSortFunction(sortWinrate)}>
-                    <label>{renderFilterIcon('sortWinrate')}
+                    <div  className={"horiz"} onClick={() => changeSortFunction(sortWinrate)}>
+                    <label>{renderFilterIcon('sortWinrate')} &nbsp;
                         Win rate </label>
                     </div>
                 </Col>
                 <Col>
-                    <div className={".horiz"} onClick={() => changeSortFunction(sortGameAmount)}>
-                    <label> {renderFilterIcon('sortGameAmount')}Games</label>
+                    <div className={"horiz"} onClick={() => changeSortFunction(sortGameAmount)}>
+                    <label> {renderFilterIcon('sortGameAmount')} &nbsp;Games</label>
                     </div>
                 </Col>
             </Row>
             {leaderboard.map((player) => (
-                <Row>
+                <Row className={"leaderboardEntry"}>
                     <Col>
-                        <div  className={".horiz"}>
+                        <div  className={"horiz"}>
                             <Link to={"/profile?player="+player.username}> {player.username}</Link>
                         </div>
                     </Col>
                     <Col>
-                        <div className={".horiz"}>
-
+                        <div className={"horiz"}>
                         {Math.round(player.winRate * 100)}%
                         </div>
                     </Col>
                     <Col>
-                        <div className={".horiz"}>
+                        <div className={"horiz"}>
 
                         {player.matchCount}
                         </div>

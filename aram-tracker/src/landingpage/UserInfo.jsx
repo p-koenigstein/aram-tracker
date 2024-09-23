@@ -20,7 +20,7 @@ export function UserInfo({username, logout, toggleDarkMode, useDarkMode}) {
                             <div className={"userName"}>
                             Logged in as {username}
                             </div>
-                            <Button onClick={logout}>Log out</Button>
+                            <Button variant={"outline-danger"} onClick={logout}>Log out</Button>
                             &nbsp;
                         </div>
                     </div>

@@ -19,11 +19,10 @@ export function Profile ({username}) {
 
     useEffect(() => {
         sendJsonMessage({action:"requestProfile", payload:{player:playername}})
-    }, []);
+    }, [playername]);
 
     useEffect(() => {
         if(lastJsonMessage !== null){
-            console.log(lastJsonMessage)
             switch(lastJsonMessage.action){
                 case "profileAnswer":{
                     setMatchHistory(lastJsonMessage.payload)
@@ -35,6 +34,6 @@ export function Profile ({username}) {
 
     return (<div>
         <h3 className={"horiz"}>Profil von {playername===null ? username : playername}</h3>
-        {matchHistory.length>0 ? <MatchList matches={matchHistory}/> : <div>Spieler nicht gefunden oder keine abgeschlossenen spiele</div>}
+        {matchHistory.length>0 ? <MatchList matches={matchHistory}/> : <div/>}
     </div>)
 }

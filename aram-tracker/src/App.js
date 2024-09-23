@@ -16,11 +16,12 @@ import {Children} from "react";
 import './lobby/ChampSelecct.css'
 import 'bootstrap/dist/css/bootstrap.css'
 import useWebSocket from "react-use-websocket";
-import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import {Profile} from "./leaderboard/Profile";
+import ReactDOM from "react-dom/client";
 
 
 function App() {
+
 
     const [userName, setUserName] = useState("");
     const [cookies, setCookies, deleteCookie] = useCookies(["customaram"]);
@@ -42,6 +43,10 @@ function App() {
     }
 
     useEffect(() => {
+        document.body.setAttribute("data-bs-theme",useDarkMode ? "dark" : "light")
+    }, [useDarkMode]);
+
+    useEffect(() => {
         if (process.env.REACT_APP_IS_DEV === "false") {
             if (cookies["username"]) {
                 setUserName(cookies["username"])
@@ -56,21 +61,8 @@ function App() {
         }
     }, [])
 
-    const darkTheme = createTheme({
-        palette: {
-            mode: useDarkMode ? "dark" : "light",
-            primary: {
-                main: '#90caf9'
-            },
-            secondary: {
-                main: '#131052'
-            }
-        }
-    })
-
     return (
-        <ThemeProvider theme={darkTheme}>
-            <CssBaseline/>
+        <div data-bs-theme={useDarkMode ? "dark" : "light"}>
             <BrowserRouter>
                 <Routes>
                     <Route path="/"
@@ -89,7 +81,8 @@ function App() {
                     </Route>
                 </Routes>
             </BrowserRouter>
-        </ThemeProvider>)
+        </div>
+    )
 
 }
 
