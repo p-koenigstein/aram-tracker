@@ -33,6 +33,11 @@ export function MatchHistory ({})  {
         sendJsonMessage({action:"requestMatchHistory"})
     }, []);
 
+    const renderMatchDate = (date) => {
+        let realDate = new Date(date)
+        return realDate.toLocaleDateString('de-DE') + " " + realDate.getHours() + ":" +realDate.getMinutes()
+    }
+
     useEffect(() => {
 
         if (lastJsonMessage !== null){
@@ -53,6 +58,7 @@ export function MatchHistory ({})  {
                 return (
                     <div className={"matchHistoryEntry"}>
                         <div>
+                            {renderMatchDate(match.timestamp)}
                             {
                                 match.teams.map((team, index) => {
                                     return (
