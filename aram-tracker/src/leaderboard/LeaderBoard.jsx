@@ -1,6 +1,9 @@
 import useWebSocket from "react-use-websocket";
 import {useEffect, useState} from "react";
 import {Button, Col, Row, Table} from "react-bootstrap";
+import {Link} from "react-router-dom";
+import sort_1 from '../resources/icons/sort_1.png'
+import sort_2 from '../resources/icons/sort_2.png'
 
 export function LeaderBoard({username}) {
 
@@ -8,7 +11,7 @@ export function LeaderBoard({username}) {
     const [reverse, setReverse] = useState(false);
 
     const sortWinrate = (p1, p2) => {
-        return p2.winRate - p1.winRate;
+        return p1.winRate - p2.winRate;
     }
 
     const sortPlayerName = (p1,p2) => {
@@ -37,6 +40,16 @@ export function LeaderBoard({username}) {
         setLeaderboard(newLeaderBoard)
     }
 
+    const renderFilterIcon = (sortType) =>{
+        if (sortFn.name === sortType){
+            let imgSrc = reverse?"../resources/icons/sort_1.png" : "../resources/icons/sort_2.png"
+            console.log(imgSrc)
+           // let a = require("../resources/icons/sort_1.png")
+           // let b = require("../resources/icons/sort_2.png")
+            return <img className={"filterslot"} src={reverse?sort_1:sort_2} alt={"sort"} />
+        }
+        return <div className={"filterslot"}/>
+    }
 
     const WS_URL = process.env.REACT_APP_WS_URL;
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(WS_URL,
@@ -62,21 +75,21 @@ export function LeaderBoard({username}) {
 
     return(
         <Table>
-            <Row>
+            <Row className={"leaderboard-header"}>
                 <Col>
                     <div  className={".horiz"} onClick = {() => changeSortFunction(sortPlayerName)}>
-                    <label>Player name </label>
+                    <label>{renderFilterIcon('sortPlayerName')}Player name </label>
                     </div>
                 </Col>
                 <Col>
                     <div  className={".horiz"} onClick={() => changeSortFunction(sortWinrate)}>
-                    <label>
-                        Win rate</label>
+                    <label>{renderFilterIcon('sortWinrate')}
+                        Win rate </label>
                     </div>
                 </Col>
                 <Col>
                     <div className={".horiz"} onClick={() => changeSortFunction(sortGameAmount)}>
-                    <label>Games</label>
+                    <label> {renderFilterIcon('sortGameAmount')}Games</label>
                     </div>
                 </Col>
             </Row>
@@ -84,8 +97,7 @@ export function LeaderBoard({username}) {
                 <Row>
                     <Col>
                         <div  className={".horiz"}>
-
-                        {player.username}
+                            <Link to={"/profile?player="+player.username}> {player.username}</Link>
                         </div>
                     </Col>
                     <Col>

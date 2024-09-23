@@ -160,6 +160,20 @@ const handleMessage = (bytes, uuid) => {
                     }
                 )
             break;
+        case "requestProfile":
+            let requestedPlayer = request.payload.player
+            if (requestedPlayer===null){
+                requestedPlayer = players[uuid].username
+            }
+            getPlayerMatchHistory(requestedPlayer)
+                .then((history) => {
+                    message = {
+                        action:"profileAnswer",
+                        payload:history
+                    }
+                    connections[uuid].send(JSON.stringify(message))
+                })
+            break;
         default:
             console.log(request)
             break;

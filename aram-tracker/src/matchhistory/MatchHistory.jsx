@@ -2,12 +2,38 @@ import useWebSocket from "react-use-websocket";
 import {Button, Col, ListGroup, Row, Table} from "react-bootstrap";
 import {useEffect, useState} from "react";
 import {PlayerSlot} from "../champselect/ChampionSelect";
+import {Link} from "react-router-dom";
 
 
 export function MatchHistory ({})  {
 
-    const [loading, setLoading] = useState(true);
     const [matches, setMatches] = useState([]);
+
+    const {sendJsonMessage, lastJsonMessage} = useWebSocket(process.env.REACT_APP_WS_URL,
+        {
+            share:true
+        })
+
+    useEffect(() => {
+        sendJsonMessage({action:"requestMatchHistory"})
+    }, []);
+
+
+    useEffect(() => {
+
+        if (lastJsonMessage !== null){
+            if (lastJsonMessage.action === "matchHistory"){
+                setMatches(lastJsonMessage.payload.matches)
+            }
+        }
+    }, [lastJsonMessage]);
+
+
+    return (<MatchList matches={matches}/>)
+}
+
+export function MatchList({matches}) {
+
     const [page, setPage] = useState(1);
 
     const matchesPerPage = 5;
@@ -24,53 +50,31 @@ export function MatchHistory ({})  {
         }
     }
 
-    const {sendJsonMessage, lastJsonMessage} = useWebSocket(process.env.REACT_APP_WS_URL,
-        {
-            share:true
-        })
-
-    useEffect(() => {
-        sendJsonMessage({action:"requestMatchHistory"})
-    }, []);
-
-
-    useEffect(() => {
-
-        if (lastJsonMessage !== null){
-            if (lastJsonMessage.action === "matchHistory"){
-                console.log(lastJsonMessage.payload.matches)
-                setMatches(lastJsonMessage.payload.matches)
-                console.log("lastJsonMessage", lastJsonMessage)
-            }
-        }
-    }, [lastJsonMessage]);
-
-
     return (
-    <div className={"matchHistory"}>
-        <div>
-        {
-            matches.slice((page-1)*matchesPerPage, page * matchesPerPage).map((match)=>
-            <Match match={match}/> )
-        }
-    </div>
-        <div className={"pageNavigation"}>
-            <Button onClick={() => setPage(Math.max(1,page - 5))} variant={"dark"}>&lt;&lt;</Button>
-            <Button onClick={() => previousPage()} variant={"dark"}>&lt;</Button>
-            {
-                [...Array(Math.ceil(matches.length/matchesPerPage)).keys()].map(
-                    (pageNumber) =>
-                        <Button onClick={()=>setPage(pageNumber+1)} variant={pageNumber+1 === page?"warning":"dark"}>
-                            {pageNumber+1}
-                        </Button>
+        <div className={"matchHistory"}>
+            <div>
+                {
+                    matches.slice((page-1)*matchesPerPage, page * matchesPerPage).map((match)=>
+                        <Match match={match}/> )
+                }
+            </div>
+            <div className={"pageNavigation"}>
+                <Button onClick={() => setPage(Math.max(1,page - 5))} variant={"dark"}>&lt;&lt;</Button>
+                <Button onClick={() => previousPage()} variant={"dark"}>&lt;</Button>
+                {
+                    [...Array(Math.ceil(matches.length/matchesPerPage)).keys()].map(
+                        (pageNumber) =>
+                            <Button onClick={()=>setPage(pageNumber+1)} variant={pageNumber+1 === page?"warning":"dark"}>
+                                {pageNumber+1}
+                            </Button>
 
-                )
-            }
-            <Button onClick={() => nextPage()} variant={"dark"}>&gt;</Button>
-            <Button onClick={() => setPage(Math.min(Math.ceil(matches.length/matchesPerPage),page + 5))} variant={"dark"}>&gt;&gt;</Button>
-        </div>
+                    )
+                }
+                <Button onClick={() => nextPage()} variant={"dark"}>&gt;</Button>
+                <Button onClick={() => setPage(Math.min(Math.ceil(matches.length/matchesPerPage),page + 5))} variant={"dark"}>&gt;&gt;</Button>
+            </div>
 
-    </div>)
+        </div>)
 }
 
 export function Match ({match}) {
@@ -92,8 +96,9 @@ export function Match ({match}) {
                             <div className={"matchHistoryElement " + (match.winner===index ? 'winnerTeam' : 'loserTeam')}>
                                 {
                                     team.map((player) => {
-                                        return (
+                                        return (<Link to={"/profile?player="+player.username}>
                                             <PlayerSlot playerName={player.username} selectedChamp={player.champName} lockedIn={false} />
+                                            </Link>
                                         )
                                     })
                                 }
