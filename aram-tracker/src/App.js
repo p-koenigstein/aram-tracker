@@ -23,23 +23,40 @@ import ReactDOM from "react-dom/client";
 function App() {
 
 
-    const [userName, setUserName] = useState("");
+    const [username, setUsername] = useState("");
     const [cookies, setCookies, deleteCookie] = useCookies(["customaram"]);
     const [useDarkMode, setDarkMode] = useState(false);
 
+    const WS_URL = process.env.REACT_APP_WS_URL;
+    const {sendJsonMessage, lastJsonMessage} = useWebSocket(WS_URL,
+        {
+            share:true,
+            queryParams: {username}
+        })
+
+    useEffect(() => {
+        if (lastJsonMessage!== null){
+            switch(lastJsonMessage.action){
+                case "logout":
+                    setUsername("")
+                    break;
+            }
+        }
+    },[lastJsonMessage])
+    
     const toggleDarkMode = () => {
         setCookies("darkMode", !useDarkMode)
         setDarkMode(!useDarkMode)
     }
 
     const updateUserName = (userName) => {
-        setUserName(userName);
+        setUsername(userName);
         setCookies("username", userName);
     }
 
     const logout = () => {
         deleteCookie("username")
-        setUserName("")
+        setUsername("")
     }
 
     useEffect(() => {
@@ -49,14 +66,13 @@ function App() {
     useEffect(() => {
         if (process.env.REACT_APP_IS_DEV === "false") {
             if (cookies["username"]) {
-                setUserName(cookies["username"])
+                setUsername(cookies["username"])
             }
         }
     }, [cookies["username"]]);
 
     useEffect(() => {
         if (cookies["darkMode"] !== undefined) {
-            console.log(cookies["darkMode"])
             setDarkMode(cookies["darkMode"])
         }
     }, [])
@@ -66,18 +82,18 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/"
-                           element={<UserInfo username={userName} logout={logout} toggleDarkMode={toggleDarkMode}
+                           element={<UserInfo username={username} logout={logout} toggleDarkMode={toggleDarkMode}
                                               useDarkMode={useDarkMode}/>}>
-                        <Route path="/" element={userName === "" ? <Login onSubmit={updateUserName}/> :
-                            <WelcomePage username={userName}/>}/>
-                        <Route path="lobby" element={userName === "" ? <Login onSubmit={updateUserName}/> :
-                            <Lobby username={userName}/>}/>
-                        <Route path="leaderboard" element={userName === "" ? <Login onSubmit={updateUserName}/> :
-                            <LeaderBoard username={userName}/>}/>
+                        <Route path="/" element={username === "" ? <Login onSubmit={updateUserName}/> :
+                            <WelcomePage username={username}/>}/>
+                        <Route path="lobby" element={username === "" ? <Login onSubmit={updateUserName}/> :
+                            <Lobby username={username}/>}/>
+                        <Route path="leaderboard" element={username === "" ? <Login onSubmit={updateUserName}/> :
+                            <LeaderBoard username={username}/>}/>
                         <Route path="matchhistory"
-                               element={userName === "" ? <Login onSubmit={updateUserName}/> : <MatchHistory/>}/>
-                        <Route path="profile" element={userName === "" ? <Login onSubmit={updateUserName}/> :
-                            <Profile username={userName}/>}/>
+                               element={username === "" ? <Login onSubmit={updateUserName}/> : <MatchHistory/>}/>
+                        <Route path="profile" element={username === "" ? <Login onSubmit={updateUserName}/> :
+                            <Profile username={username}/>}/>
                     </Route>
                 </Routes>
             </BrowserRouter>

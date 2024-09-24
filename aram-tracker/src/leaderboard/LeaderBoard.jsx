@@ -90,7 +90,7 @@ export function LeaderBoard({username}) {
                 </Col>
             </Row>
             {leaderboard.map((player) => (
-                <Row className={"leaderboardEntry"}>
+                <Row className={"leaderboardEntry"} key={player.username}>
                     <Col>
                         <div  className={"horiz"}>
                             <Link to={"/profile?player="+player.username}> {player.username}</Link>

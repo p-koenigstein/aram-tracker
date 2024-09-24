@@ -56,7 +56,7 @@ export function MatchList({matches}) {
             <div>
                 {
                     matches.slice((page-1)*matchesPerPage, page * matchesPerPage).map((match)=>
-                        <Match match={match}/> )
+                        <Match match={match} key={match._id}/> )
                 }
             </div>
             <div className={"pageNavigation"}>
@@ -65,7 +65,7 @@ export function MatchList({matches}) {
                 {
                     [...Array(Math.ceil(matches.length/matchesPerPage)).keys()].map(
                         (pageNumber) =>
-                            <Button onClick={()=>setPage(pageNumber+1)} variant={pageNumber+1 === page?"warning":buttonVariant}>
+                            <Button onClick={()=>setPage(pageNumber+1)} variant={pageNumber+1 === page?"warning":buttonVariant} key={"pg_"+pageNumber}>
                                 {pageNumber+1}
                             </Button>
 
@@ -94,10 +94,10 @@ export function Match ({match}) {
                 {
                     match.teams.map((team, index) => {
                         return (
-                            <div className={"matchHistoryElement " + (match.winner===index ? 'winnerTeam' : 'loserTeam')}>
+                            <div className={"matchHistoryElement " + (match.winner===index ? 'winnerTeam' : 'loserTeam')} key={match._id+"_"+index}>
                                 {
                                     team.map((player) => {
-                                        return (<Link to={"/profile?player="+player.username}>
+                                        return (<Link to={"/profile?player="+player.username} key={match._id+"_"+index+"_"+player.username}>
                                             <PlayerSlot playerName={player.username} selectedChamp={player.champName} lockedIn={false} />
                                             </Link>
                                         )

@@ -20,13 +20,16 @@ export function HeadsUp ({teams, teamNames, sendJsonMessage}) {
             <div>
             {
                 teams.map(
-                    (team) => <div className="team" key={team}>
-                        {Object.keys(team).map((player) =>
-                            <PlayerSlot selectedChamp={team[player].state.selectedChampion}
-                                        playerName={team[player].username} key={player}
-                                        lockedIn={false}/>
-                        )}
-                    </div>
+                    (team,idx) => {
+                        return <div className="team" key={idx}>
+                            {Object.keys(team).map((player) => {
+                                    return <PlayerSlot selectedChamp={team[player].state.selectedChampion}
+                                                       playerName={team[player].username} key={team[player].username}
+                                                       lockedIn={false}/>
+                                }
+                            )}
+                        </div>
+                    }
                 )
             }
             </div>

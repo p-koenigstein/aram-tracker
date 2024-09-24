@@ -78,10 +78,7 @@ const handleMessage = (bytes, uuid) => {
                 getDraft()
                 status = "draft"
                 for (let team = 0; team < 2; team++) {
-                    message.payload = {}
-                    message.payload.team = teams[team]
-                    message.payload.availableChamps = champs[team]
-                    message.payload.status = status
+                    message.payload = getDraftUpdate(team)
                     broadcastTeam(message, team)
                 }
                 updateStatus()
@@ -180,6 +177,15 @@ const handleMessage = (bytes, uuid) => {
     }
 }
 
+const getDraftUpdate = (team) => {
+    let payload = {}
+    payload = {}
+    payload.team = teams[team]
+    payload.availableChamps = champs[team]
+    payload.status = status
+    return payload
+}
+
 const getPlayerList = () => {
     let message = {}
     message.action = "playerList"
@@ -265,13 +271,19 @@ const updateStatus = () => {
 }
 
 const startGame = () => {
+    status = "game"
+    let message = getStartGameMessage()
+    broadcast(message)
+    setTimeout(() => {displayWinnerButtons()}, process.env.GAME_END_DELAY)
+}
+
+const getStartGameMessage = () => {
     let message = {}
     message.action = "finishDraft"
     message.payload = {}
     message.payload.status = "game"
     message.payload.teams = teams
-    broadcast(message)
-    setTimeout(() => {displayWinnerButtons()}, process.env.GAME_END_DELAY)
+    return message
 }
 
 const displayWinnerButtons = () =>{
@@ -319,12 +331,16 @@ const handleClose = (uuid) => {
 }
 
 const handleDisconnect = (uuid) => {
-    let team = players[uuid].state.team
-    if (team>-1){
-        delete teams[team][uuid]
-    }
+    // let team = players[uuid].state.team
+    // if (team>-1){
+    //     delete teams[team][uuid]
+    // }
     delete connections[uuid]
-    delete players[uuid]
+    // delete players[uuid]
+    console.log(players)
+    console.log(uuid)
+    players[uuid].state.online = false
+    console.log("logged out ",players[uuid])
     let message = getPlayerList()
     broadcast(message)
 }
@@ -354,7 +370,8 @@ const getDefaultPlayerState = () => {
         selectedChampion:"",
         lockedIn:false,
         team:-1,
-        inLobby:false
+        inLobby:false,
+        online:false
     }
 }
 
@@ -434,6 +451,39 @@ wsServer.on("connection", (connection, request) => {
         state : getDefaultPlayerState()
     }
     connections[uuid] = connection
+    let oldPlayerEntry = Object.entries(players).find(([id, player]) => player.username===username)
+    console.log(oldPlayerEntry, username)
+    if(oldPlayerEntry!==undefined) {
+        const [oldUuid, playerObject] = oldPlayerEntry
+        if (!playerObject.state.online) {
+            delete players[oldUuid]
+            players[uuid] = playerObject
+            playerObject.state.online = true
+            for (let teamId in teams) {
+                let team = teams[teamId]
+                if (Object.keys(team).includes(oldUuid)) {
+                    delete team[oldUuid]
+                    team[uuid] = playerObject
+                }
+            }
+            console.log("logged in a gain",playerObject)
+            let message
+            switch (status) {
+                case "game":
+                    message = getStartGameMessage()
+                    connection.send(JSON.stringify(message))
+                    break;
+                case "draft":
+                    message = {}
+                    message.action = "startGame"
+                    message.payload = getDraftUpdate(playerObject.state.team)
+                    connection.send(JSON.stringify(message))
+            }
+        }
+        else{
+            connection.send(JSON.stringify({action:"logout"}))
+        }
+    }
     if(username) {
         client.connect()
             .then(() => {
@@ -452,7 +502,6 @@ wsServer.on("connection", (connection, request) => {
                     )
             });
     }
-    getRanking()
     connection.on("message", message => handleMessage(message, uuid))
     connection.on("close", () => handleClose(uuid))
 })
