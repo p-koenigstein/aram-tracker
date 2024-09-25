@@ -300,7 +300,7 @@ const displayWinnerButtons = () =>{
 const getDraft = () => {
     let playerCount = Object.keys(teams[0]).length
     const rolls = 3
-    const total_picks = playerCount * rolls;
+    const total_picks = Math.max(playerCount * rolls,10);
     const champs_shuffled = allChamps.sort((c1,c2) => 0.5-Math.random())
     champs = [champs_shuffled.slice(0,total_picks), champs_shuffled.slice(total_picks,total_picks*2)]
 }
