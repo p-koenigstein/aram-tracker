@@ -161,6 +161,9 @@
 .defaultPadding{
     padding:10px;
 }
+.defaultMargin{
+    margin:10px;
+}
 
 .confirmButton{
     padding-left:16px;
@@ -175,8 +178,8 @@
 }
 
 .horiz{
-    margin:auto;
-    width:fit-content;
+    margin:auto !important;
+    width:fit-content !important;
 }
 
 .playerList{
@@ -200,4 +203,8 @@
 
 .margin-top{
     margin-top:10px;
+}
+
+.shrink{
+    width:fit-content !important;
 }

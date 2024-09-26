@@ -6,11 +6,13 @@ import ChampionSelect from "../champselect/ChampionSelect";
 import {HeadsUp} from "../champselect/HeadsUp";
 import {MatchSummary} from "./MatchSummary";
 import {Match} from "../matchhistory/MatchHistory";
+import {LobbyPreview} from "./LobbyPreview";
 
 export function Lobby ({username}) {
 
     const [players, setPlayers] = useState([])
     const [team, setTeam] = useState({})
+    const [teams, setTeams] = useState([])
     const [status, setStatus] = useState("lobby")
     const [started, setStarted] = useState(false)
     const [availableChamps, setAvailableChamps] = useState([])
@@ -31,6 +33,10 @@ export function Lobby ({username}) {
             share:true,
             queryParams: {username}
         })
+
+    const shuffleTeams = () => {
+        sendJsonMessage({action:"shuffleTeams"})
+    }
 
     useEffect(() => {
         sendJsonMessage({action:"register"})
@@ -76,6 +82,11 @@ export function Lobby ({username}) {
                 case "updateLatestMatch":
                     setLastGame(lastJsonMessage.payload)
                     break;
+                case "displayTeams":
+                    setStatus(lastJsonMessage.payload.status)
+                    console.log(lastJsonMessage.payload.teams)
+                    setTeams(lastJsonMessage.payload.teams)
+                    break;
                 default:
                     console.log(lastJsonMessage)
                     break;
@@ -107,7 +118,17 @@ export function Lobby ({username}) {
                     <h3 className={"matchHistoryEntry"}>Last Match:</h3>
                     <Match match={lastGame}/>
                 </div>) : <div/>}
-                    <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={false} inLobby={inLobby}/>
+                    <PlayerList players={players} startGame={shuffleTeams} joinGame={joinGame} started={false} inLobby={inLobby}/>
+            </div>
+        case "teamSelect":
+            return <div>
+
+                {Object.keys(lastGame).length >0 ? (<div className={"matchHistoryEntry"}>
+
+                    <h3 className={"matchHistoryEntry"}>Last Match:</h3>
+                    <Match match={lastGame}/>
+                </div>) : <div/>}
+                {inLobby ? <LobbyPreview teams={teams} shuffle={shuffleTeams} startGame={startGame}/> : <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={true} inLobby={inLobby}/>}
             </div>
         case "draft":
             return <div>

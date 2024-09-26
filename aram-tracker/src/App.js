@@ -18,6 +18,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import useWebSocket from "react-use-websocket";
 import {Profile} from "./leaderboard/Profile";
 import ReactDOM from "react-dom/client";
+import {LobbyPreview} from "./lobby/LobbyPreview";
 
 
 function App() {

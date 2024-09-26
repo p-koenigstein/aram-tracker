@@ -63,10 +63,9 @@ const handleMessage = (bytes, uuid) => {
             console.log(getPlayerList())
             broadcast(getPlayerList())
             break;
-        case "startGame":
-            message.action = "startGame"
+        case "shuffleTeams":
             if (Object.keys(players).filter((uuid) => players[uuid].state.inLobby).length>1) {
-                //shuffle keys
+                teams = [{},{}]
                 const randomOrder = Object.keys(players).filter((player) => players[player].state.inLobby===true).sort((a, b) => 0.5 - Math.random())
                 let current_team = 0
                 for (let playerUUID in randomOrder) {
@@ -75,6 +74,19 @@ const handleMessage = (bytes, uuid) => {
                     players[currentUUID].state.team = current_team
                     current_team = (current_team + 1) % 2
                 }
+            }
+            status = "teamSelect"
+            message.action = "displayTeams"
+            message.payload = {
+                teams:teams,
+                status:status
+            }
+            broadcast(message)
+            break;
+        case "startGame":
+            if (Object.keys(players).filter((uuid) => players[uuid].state.inLobby && players[uuid].state.online).length>1) {
+            message.action = "startGame"
+                //shuffle keys
                 getDraft()
                 status = "draft"
                 for (let team = 0; team < 2; team++) {
@@ -82,8 +94,9 @@ const handleMessage = (bytes, uuid) => {
                     broadcastTeam(message, team)
                 }
                 updateStatus()
-            }
             /// custom br
+
+            }
             break;
         case "selectChampion":
             let request_pl = request.payload
@@ -191,7 +204,7 @@ const getPlayerList = () => {
     message.action = "playerList"
     message.payload = {}
     message.payload.players = Object.fromEntries(Object.entries(players).filter(([uuid, player]) => {
-        return player.state.inLobby
+        return player.state.inLobby && player.state.online
     }))
     message.payload.status = status
     sendLatestMatch()
@@ -314,10 +327,14 @@ const broadcastTeam = (message, team) => {
     })
 }
 
-const endGame = () => {
-    champs = []
+const reset = () => {
+    champs =[]
     teams = [{},{}]
     status = "lobby"
+}
+
+const endGame = () => {
+    reset()
     Object.keys(players).forEach(uuid => {
         players[uuid].state = getDefaultPlayerState()
     })
@@ -337,10 +354,22 @@ const handleDisconnect = (uuid) => {
     // }
     delete connections[uuid]
     // delete players[uuid]
-    console.log(players)
-    console.log(uuid)
     players[uuid].state.online = false
     console.log("logged out ",players[uuid])
+    // check if go we have to go back to lobby
+    if (status !== "lobby"){
+        console.log(teams)
+        let stillSomeoneOnline = teams.filter((team) => {
+             return Object.entries(team).filter(([playerUuid, player]) => {
+                 console.log(player.state)
+                return player.state.online
+            }).length > 0
+        }).length > 0
+        if (!stillSomeoneOnline){
+            console.log("noone online")
+            reset()
+        }
+    }
     let message = getPlayerList()
     broadcast(message)
 }
@@ -373,6 +402,13 @@ const getDefaultPlayerState = () => {
         inLobby:false,
         online:false
     }
+}
+
+const resetPlayerObject = (playerObject) => {
+    playerObject.selectedChampion = ""
+    playerObject.lockedIn = false
+    playerObject.inLobby = false
+    playerObject.team = -1
 }
 
 async function getRanking () {
