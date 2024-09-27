@@ -23,6 +23,10 @@ let connections = {}
 
 let gameCountdown = null
 
+let lobbies = {
+
+}
+
 let teams = [{},{}]
 let allChamps = [
     "Aatrox", "Ahri", "Akali", "Akshan", "Alistar", "Amumu", "Anivia", "Annie", "Aphelios",
