@@ -1,3 +1,4 @@
+import {recordMatch, saveEloUpdates} from "../database/database";
 
 const uuid = require('uuid').v4
 
@@ -126,13 +127,39 @@ export const startGame = (lobbyId) => {
     lobby.status = "inGame"
 }
 
-export const endGame = (lobbyId) => {
+export const endGame = (lobbyId, winner) => {
     let lobby = lobbies[lobbyId]
+    let lastMatch = recordMatch(lobby, winner)
+    updateElo(lobby, winner)
     lobby.teams = [[],[]]
     if (!lobby.fearless){
         lobby.availableChamps = allChamps
     }
     lobby.status = "lobby"
+    return lastMatch
+}
+
+const updateElo = (lobby, winner) => {
+
+    let elos = lobby.teams.map((team) => {
+        return team.map((player) => player.elo).reduce((a,b) => a+b)/team.length
+    })
+    let probabilities = elos.map((elo, idx) => {
+        return (1 / (1 + Math.pow(10, ((elo - elos[(idx + 1) % 2]) / 400))))
+    })
+    const K = 30
+
+    let eloChange = [K * ((1-winner)-probabilities[1]), K * ((1-(1-winner)-probabilities[0]))]
+
+    lobby.teams.forEach((team,index) => {
+        let teamPlayers = team.map((player) => {
+            player.elo = player.elo + eloChange[index]
+            return player.username
+        })
+        saveEloUpdates(teamPlayers, eloChange[index])
+            .then(() => {})
+            .catch(() => {})
+    })
 }
 
 export const selectChampion = (playerName, lobbyId, champName) => {

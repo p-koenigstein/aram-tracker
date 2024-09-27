@@ -576,6 +576,7 @@ wsServer.on("connection", (connection, request) => {
                         (array) => {
                             if (array.length === 0) {
                                 players[uuid].elo = 1200
+                                players[uuid].elo1v1 = 1200
                                 collection.insertOne(createPlayerDBEntry(username))
                                     .then(res => {
                                     })
@@ -583,6 +584,7 @@ wsServer.on("connection", (connection, request) => {
                             }
                             else{
                                 players[uuid].elo = array[0].elo
+                                players[uuid].elo1v1 = array[0].elo1v1
                             }
                         }
                     )

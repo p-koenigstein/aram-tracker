@@ -1,6 +1,6 @@
 import {
     checkLobbyAlive,
-    checkStartCondition,
+    checkStartCondition, endGame,
     joinLobby,
     lockInChampion,
     selectChampion,
@@ -8,6 +8,7 @@ import {
     startChampSelect,
     startGame
 } from "./lobby/lobbies"
+import {getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database";
 
 const {WebSocketServer} = require('ws')
 const url = require('url')
@@ -30,6 +31,8 @@ let playersByUuid = {
 
 }
 
+let lastMatch = {}
+
 const broadcast = (message, targets) => {
     targets.map((uuid) => connections[uuid])
         .for((connection) => {
@@ -45,8 +48,11 @@ const handleMessage = (bytes, uuid) => {
     let player
     switch (request["action"]) {
         case "register":
-            message = getPlayerList()
-            broadcast(message)
+            message.action = "playersOnline"
+            message.payload = {
+                players:getPlayerList()
+            }
+            broadcast(message, Object.keys(playersByUuid))
             break;
         case "joinLobby":
             lobbyId = request.payload.lobbyId
@@ -123,56 +129,20 @@ const handleMessage = (bytes, uuid) => {
         case "vote":
             let vote = request.payload.team;
             lobbyId = playersByUuid[uuid].state.inLobby
-            let dbEntry = {
-                winner:vote
-            }
-            dbEntry.teams = []
-            teams.forEach(team =>{
-                    dbEntry.teams.push(Object.keys(team).map((uuid) => {
-                        return {
-                            username : players[uuid].username,
-                            champName: players[uuid].state.selectedChampion
-                        }
-                    }))
-                }
-            )
-            let elos = teams.map((team) => {
-                return (Object.entries(team).map(([playerUuid, player]) => player.elo).reduce((a,b) => a+b)/Object.entries(team).length)
-            })
-            let probabilities = elos.map((elo, idx) => {
-                return (1 / (1 + Math.pow(10, ((elo - elos[(idx + 1) % 2]) / 400))))
-            })
-            const K = 30
-            console.log(probabilities[0],probabilities[1])
-            let eloChange = [K * ((1-vote)-probabilities[1]), K * ((1-(1-vote)-probabilities[0]))]
-            //      let eloChange = probablilites.map((prob) => K * ((1 - vote)-prob))
-            teams.forEach((team,index) => {
-                let teamPlayers = Object.entries(team).map(([uuid, player]) => {
-                    player.elo = player.elo + eloChange[index]
-                    return player.username
-                })
-                updateElo(teamPlayers, eloChange[index])
-            })
-            console.log(probabilities)
-            console.log(elos)
-            console.log(eloChange)
-            dbEntry.timestamp = new Date(Date.now()).toISOString()
-            writeDB(dbEntry)
-                .then(result => {
-                    console.log(result)
-                    let matchId = result.insertedId
-                    console.log(matchId)
-                    appendMatch(matchId, dbEntry)
-                        .then(result => {})
-                        .catch(err => console.log(err))
-                })
-                .catch(error => {console.log(error)})
-            lastMatch = dbEntry
+            lastMatch = endGame(lobbyId, vote)
             sendLatestMatch()
-            endGame()
             break;
         case "requestMatchHistory":
-            getMatchHistory(uuid)
+            getMatchHistory(uuid).then(
+                (allMatches) => {
+                    message = {
+                        action: "matchHistory",
+                        payload: {
+                            matches: allMatches
+                        }
+                    }
+                    connections[uuid].send(JSON.stringify(message))
+                })
             break;
         case "requestLeaderboard":
             getRanking()
@@ -182,7 +152,6 @@ const handleMessage = (bytes, uuid) => {
                             action:"leaderBoardAnswer"
                         }
                         message.payload = ranking
-                        console.log(message)
                         connections[uuid].send(JSON.stringify(message))
                     }
                 )
@@ -190,7 +159,7 @@ const handleMessage = (bytes, uuid) => {
         case "requestProfile":
             let requestedPlayer = request.payload.player
             if (requestedPlayer===null){
-                requestedPlayer = players[uuid].username
+                requestedPlayer = playersByUuid[uuid].username
             }
             getPlayerMatchHistory(requestedPlayer)
                 .then((history) => {
@@ -207,6 +176,20 @@ const handleMessage = (bytes, uuid) => {
     }
 }
 
+const getPlayerList = () =>{
+    return Object.entries(playersByName).filter(([name, playerObject]) => playerObject.state.online).map(([name, playerObject]) => name)
+}
+
+const sendLatestMatch = () => {
+    if(lastMatch){
+        let message = {
+            action:"updateLatestMatch"
+        }
+        message.payload = lastMatch
+        broadcast(message, Object.keys(playersByUuid))
+    }
+}
+
 
 const displayWinnerButtons = () =>{
     let message = {}
@@ -216,7 +199,7 @@ const displayWinnerButtons = () =>{
         let teamLeader = Object.keys(team).sort((p1,p2) => 0.5 - Math.random())[0]
         return "Team "+team[teamLeader].username
     })
-    broadcast(message)
+    broadcast(message, Object.keys(playersByUuid))
 }
 
 const handleClose = (uuid) => {
