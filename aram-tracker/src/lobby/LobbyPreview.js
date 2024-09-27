@@ -18,7 +18,7 @@ export function LobbyPreview({teams, shuffle, startGame}) {
                     </Row>
                     <Row className={"shrink"}>
                         <ListGroup>
-                        {Object.entries(team).map(([playerId, player])=>
+                        {team.map((player)=>
                             <ListGroupItem className={"playerList"}>
                                 {player.username}
                             </ListGroupItem>

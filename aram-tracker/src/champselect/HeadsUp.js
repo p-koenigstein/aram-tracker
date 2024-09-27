@@ -22,7 +22,7 @@ export function HeadsUp ({teams, teamNames, sendJsonMessage}) {
                 teams.map(
                     (team,idx) => {
                         return <div className="team" key={idx}>
-                            {Object.keys(team).map((player) => {
+                            {team.map((player) => {
                                     return <PlayerSlot selectedChamp={team[player].state.selectedChampion}
                                                        playerName={team[player].username} key={team[player].username}
                                                        lockedIn={false}/>

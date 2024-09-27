@@ -133,7 +133,7 @@ export function Lobby ({username}) {
         case "draft":
             return <div>
                 {inLobby ?
-                <ChampionSelect username={username} playerAmount={Object.keys(team).length} selectChampion={selectChampion} availableChampions={availableChamps} players={team} confirmChampion={confirmChampion}/>
+                <ChampionSelect username={username} playerAmount={team.length} selectChampion={selectChampion} availableChampions={availableChamps} players={team} confirmChampion={confirmChampion}/>
                 :
                     <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={true} inLobby={inLobby}/>
                 }

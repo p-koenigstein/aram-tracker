@@ -10,7 +10,7 @@ function ChampionSelect({username, availableChampions, players, selectChampion, 
     const [buttonDisabled,setButtonDisabled] = useState(true);
 
     useEffect(() => {
-        let playerObj = Object.values(players).find((player) =>{
+        let playerObj = players.find((player) =>{
             return player.username===username
         })
         if(playerObj.state.lockedIn || playerObj.state.selectedChampion===""){
@@ -24,8 +24,8 @@ function ChampionSelect({username, availableChampions, players, selectChampion, 
   return (
     <div className="champSelect">
       <div className="players borderRadius">
-          {Object.keys(players).map((player) =>
-                <PlayerSlot selectedChamp={players[player].state.selectedChampion} playerName={players[player].username} key={player} lockedIn={players[player].state.lockedIn}/>
+          {players.map((player) =>
+                <PlayerSlot selectedChamp={player.state.selectedChampion} playerName={player.username} key={player} lockedIn={players[player].state.lockedIn}/>
           )}
       </div>
         <div className={"selectionActions"}>
