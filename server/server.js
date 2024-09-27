@@ -8,7 +8,7 @@ import {
     startChampSelect,
     startGame
 } from "./lobby/lobbies"
-import {getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database";
+import {getElos, getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database";
 
 const {WebSocketServer} = require('ws')
 const url = require('url')
@@ -231,13 +231,32 @@ const getDefaultPlayerState = () => {
     }
 }
 
+const updateUserStatus = (uuid) => {
+    let message = {
+        action:"register",
+        inLobby:playersByUuid[uuid].state.inLobby
+    }
+    connections[uuid].send(JSON.stringify(message))
+}
+
 wsServer.on("connection", (connection, request) => {
     const { username } = url.parse(request.url, true).query
     const uuid = uuidv4()
-    const player = createPlayer(uuid, username)
-    playersByName[username] = player
+    let player
+    if (Object.keys(playersByName).includes(username)){
+        player = playersByName[username];
+        player.state.online = true
+    }
+    else{
+        player = createPlayer(uuid, username)
+        playersByName[username] = player
+    }
     playersByUuid[uuid] = player
     connections[uuid] = connection
+    let elos = getElos(username)
+    player.elo = elos.elo
+    player.elo1v1 = elos.elo1v1
+    updateUserStatus(uuid)
     connection.on("message", message => handleMessage(message, uuid))
     connection.on("close", () => handleClose(uuid))
 })

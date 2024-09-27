@@ -15,6 +15,28 @@ export const createPlayerDBEntry = (userName) => {
     }
 }
 
+export const getElos = async (username) => {
+    let elos = {
+    }
+    await client.connect()
+    const db = client.db(dbName);
+    const collection = db.collection('players');
+    let users = await collection.find({username: username}).toArray()
+    if (users.length===0){
+        elos.elo = 1200
+        elos.elo1v1 = 1200
+        collection.insertOne(createPlayerDBEntry(username))
+            .then(res => {
+            })
+            .catch(err => console.log(err))
+        return elos
+    }
+    else{
+        elos.elo = users[0].elo
+        elos.elo1v1 = users[0].elo1v1
+        return elos
+    }
+}
 
 export const recordMatch = (lobby, winner) => {
     let dbEntry = {
