@@ -8,10 +8,14 @@ import sort_2 from '../resources/icons/sort_2.png'
 export function LeaderBoard({username}) {
 
     const [leaderboard, setLeaderboard] = useState([]);
-    const [reverse, setReverse] = useState(false);
+    const [reverse, setReverse] = useState(true);
 
     const sortWinrate = (p1, p2) => {
         return p1.winRate - p2.winRate;
+    }
+
+    const sortElo = (p1,p2) => {
+        return p1.elo - p2.elo
     }
 
     const sortPlayerName = (p1,p2) => {
@@ -22,7 +26,7 @@ export function LeaderBoard({username}) {
         return p1.matchCount - p2.matchCount;
     }
 
-    const [sortFn, setSortFn] = useState(() => sortWinrate);
+    const [sortFn, setSortFn] = useState(() => sortElo);
 
 
     const changeSortFunction = (newFunction) => {
@@ -57,13 +61,18 @@ export function LeaderBoard({username}) {
 
     useEffect(() => {
         sendJsonMessage({action:"requestLeaderboard"})
+        setSortFn(() => sortElo)
     }, []);
 
     useEffect(() => {
         if (lastJsonMessage !== null){
             switch (lastJsonMessage.action){
                 case "leaderBoardAnswer":
-                    setLeaderboard(lastJsonMessage.payload.sort(sortFn))
+                    let newLeaderboard = lastJsonMessage.payload.sort(sortFn)
+                    if(reverse){
+                        newLeaderboard = newLeaderboard.reverse()
+                    }
+                    setLeaderboard(newLeaderboard)
                     break;
             }
         }
@@ -88,6 +97,11 @@ export function LeaderBoard({username}) {
                     <label> {renderFilterIcon('sortGameAmount')} &nbsp;Games</label>
                     </div>
                 </Col>
+                <Col>
+                    <div className={"horiz"} onClick={() => changeSortFunction(sortElo)}>
+                        <label> {renderFilterIcon('sortElo')} &nbsp; Elo </label>
+                    </div>
+                </Col>
             </Row>
             {leaderboard.map((player) => (
                 <Row className={"leaderboardEntry"} key={player.username}>
@@ -105,6 +119,11 @@ export function LeaderBoard({username}) {
                         <div className={"horiz"}>
 
                         {player.matchCount}
+                        </div>
+                    </Col>
+                    <Col>
+                        <div className={"horiz"}>
+                            {player.elo}
                         </div>
                     </Col>
                 </Row>

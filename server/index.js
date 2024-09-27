@@ -60,6 +60,8 @@ const handleMessage = (bytes, uuid) => {
             break;
         case "joinLobby":
             players[uuid].state.inLobby = true
+            players[uuid].state.online = true
+            console.log(players)
             console.log(getPlayerList())
             broadcast(getPlayerList())
             break;
@@ -139,6 +141,26 @@ const handleMessage = (bytes, uuid) => {
                 }))
                 }
             )
+            let elos = teams.map((team) => {
+                return (Object.entries(team).map(([playerUuid, player]) => player.elo).reduce((a,b) => a+b)/Object.entries(team).length)
+            })
+            let probabilities = elos.map((elo, idx) => {
+                return (1 / (1 + Math.pow(10, ((elo - elos[(idx + 1) % 2]) / 400))))
+            })
+            const K = 30
+            console.log(probabilities[0],probabilities[1])
+            let eloChange = [K * ((1-vote)-probabilities[1]), K * ((1-(1-vote)-probabilities[0]))]
+      //      let eloChange = probablilites.map((prob) => K * ((1 - vote)-prob))
+            teams.forEach((team,index) => {
+                 let teamPlayers = Object.entries(team).map(([uuid, player]) => {
+                    player.elo = player.elo + eloChange[index]
+                    return player.username
+                })
+                updateElo(teamPlayers, eloChange[index])
+            })
+            console.log(probabilities)
+            console.log(elos)
+            console.log(eloChange)
             dbEntry.timestamp = new Date(Date.now()).toISOString()
             writeDB(dbEntry)
                 .then(result => {
@@ -188,6 +210,19 @@ const handleMessage = (bytes, uuid) => {
             console.log(request)
             break;
     }
+}
+
+const updateElo = (playerList, eloChange) => {
+    client.connect()
+        .then(() => {
+            const db = client.db(dbName);
+            const collection = db.collection('players');
+            collection.updateMany({username: {$in:playerList}},{$inc:{elo:eloChange}})
+                .then(
+                    (res) => {}
+                )
+                .catch((err) => console.log(err))
+        });
 }
 
 const getDraftUpdate = (team) => {
@@ -420,7 +455,8 @@ async function getRanking () {
         async (player) => {
             return {
                 username: player.username,
-                matchHistory: await matchCollection.find({_id: {$in: player.matchHistory}}).toArray()
+                matchHistory: await matchCollection.find({_id: {$in: player.matchHistory}}).toArray(),
+                elo:Math.round(player.elo)
             }
         }
     ).toArray()
@@ -429,7 +465,8 @@ async function getRanking () {
         let player = playerInfo[playerIdx]
         let currentPlayerObject = {
             username:player.username,
-            matchCount : player.matchHistory.length
+            matchCount : player.matchHistory.length,
+            elo: player.elo
         }
         currentPlayerObject.winRate = player.matchHistory.filter((match,matchIdx) => {
             console.log(match)
@@ -471,6 +508,7 @@ async function appendMatch (matchId, match) {
 const createPlayerDBEntry = (userName) => {
     return {
         username:userName,
+        elo:1200,
         matchHistory:[],
     }
 }
@@ -529,10 +567,14 @@ wsServer.on("connection", (connection, request) => {
                     .then(
                         (array) => {
                             if (array.length === 0) {
+                                players[uuid].elo = 1200
                                 collection.insertOne(createPlayerDBEntry(username))
                                     .then(res => {
                                     })
                                     .catch(err => console.log(err))
+                            }
+                            else{
+                                players[uuid].elo = array[0].elo
                             }
                         }
                     )
