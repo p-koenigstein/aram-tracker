@@ -213,11 +213,12 @@ const handleMessage = (bytes, uuid) => {
 }
 
 const updateElo = (playerList, eloChange) => {
+    const eloFieldName = playerList.length === 1 ? "elo1v1" : "elo"
     client.connect()
         .then(() => {
             const db = client.db(dbName);
             const collection = db.collection('players');
-            collection.updateMany({username: {$in:playerList}},{$inc:{elo:eloChange}})
+            collection.updateMany({username: {$in:playerList}},{$inc:{[eloFieldName]:Math.round(eloChange)}})
                 .then(
                     (res) => {}
                 )
@@ -456,7 +457,8 @@ async function getRanking () {
             return {
                 username: player.username,
                 matchHistory: await matchCollection.find({_id: {$in: player.matchHistory}}).toArray(),
-                elo:Math.round(player.elo)
+                elo:Math.round(player.elo),
+                elo1v1:Math.round(player.elo1v1)
             }
         }
     ).toArray()
@@ -466,7 +468,8 @@ async function getRanking () {
         let currentPlayerObject = {
             username:player.username,
             matchCount : player.matchHistory.length,
-            elo: player.elo
+            elo: player.elo,
+            elo1v1: player.elo1v1
         }
         currentPlayerObject.winRate = player.matchHistory.filter((match,matchIdx) => {
             console.log(match)
@@ -509,6 +512,7 @@ const createPlayerDBEntry = (userName) => {
     return {
         username:userName,
         elo:1200,
+        elo1v1:1200,
         matchHistory:[],
     }
 }

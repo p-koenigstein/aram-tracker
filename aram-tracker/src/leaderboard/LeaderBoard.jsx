@@ -14,6 +14,10 @@ export function LeaderBoard({username}) {
         return p1.winRate - p2.winRate;
     }
 
+    const sortElo1v1 = (p1,p2) => {
+        return p1.elo1v1 - p2.elo1v1
+    }
+
     const sortElo = (p1,p2) => {
         return p1.elo - p2.elo
     }
@@ -35,7 +39,6 @@ export function LeaderBoard({username}) {
         }
         else{
             setSortFn(() => newFunction)
-            setReverse(false)
         }
         let newLeaderBoard = leaderboard.sort(newFunction)
         if (!reverse){
@@ -46,8 +49,7 @@ export function LeaderBoard({username}) {
 
     const renderFilterIcon = (sortType) =>{
         if (sortFn.name === sortType){
-            let imgSrc = reverse?"../resources/icons/sort_1.png" : "../resources/icons/sort_2.png"
-            return <img className={"filterslot"} src={reverse?sort_1:sort_2} alt={"sort"} />
+            return reverse ? <div className={"filterslot"}>&darr;</div> : <div className={"filterslot"}>&uarr;</div>;
         }
         return <div className={"filterslot"}/>
     }
@@ -102,6 +104,11 @@ export function LeaderBoard({username}) {
                         <label> {renderFilterIcon('sortElo')} &nbsp; Elo </label>
                     </div>
                 </Col>
+                <Col>
+                    <div className={"horiz"} onClick={() => changeSortFunction(sortElo1v1)}>
+                        <label> {renderFilterIcon('sortElo1v1')} &nbsp; Elo 1v1</label>
+                    </div>
+                </Col>
             </Row>
             {leaderboard.map((player) => (
                 <Row className={"leaderboardEntry"} key={player.username}>
@@ -124,6 +131,11 @@ export function LeaderBoard({username}) {
                     <Col>
                         <div className={"horiz"}>
                             {player.elo}
+                        </div>
+                    </Col>
+                    <Col>
+                        <div className={"horiz"} >
+                            {player.elo1v1}
                         </div>
                     </Col>
                 </Row>
