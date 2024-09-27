@@ -7,9 +7,11 @@ import {HeadsUp} from "../champselect/HeadsUp";
 import {MatchSummary} from "./MatchSummary";
 import {Match} from "../matchhistory/MatchHistory";
 import {LobbyPreview} from "./LobbyPreview";
+import {NoLobby} from "./NoLobby";
 
 export function Lobby ({username}) {
 
+    const [playerLobby, setPlayerLobby] = useState("")
     const [players, setPlayers] = useState([])
     const [team, setTeam] = useState({})
     const [teams, setTeams] = useState([])
@@ -47,6 +49,9 @@ export function Lobby ({username}) {
         if (lastJsonMessage !== null){
             let payload
             switch (lastJsonMessage.action){
+                case "register":
+                    setPlayerLobby(lastJsonMessage.payload)
+                    break;
                 case "playerList":
                     let currentPlayers = Object.keys(lastJsonMessage.payload.players).map(
                         ((key) => lastJsonMessage.payload.players[key].username)
@@ -108,6 +113,17 @@ export function Lobby ({username}) {
 
     const confirmChampion = () => {
         sendJsonMessage({action:"confirmChampion", payload:{}})
+    }
+
+    if (playerLobby===""){
+        return (<div>
+            {Object.keys(lastGame).length >0 ? (<div className={"matchHistoryEntry"}>
+
+                <h3 className={"matchHistoryEntry"}>Last Match:</h3>
+                <Match match={lastGame}/>
+            </div>) : <div/>}
+            <NoLobby createLobby={} joinLobby={} />
+        </div>)
     }
 
     switch (status) {

@@ -34,9 +34,10 @@ let playersByUuid = {
 let lastMatch = {}
 
 const broadcast = (message, targets) => {
-    targets.map((uuid) => connections[uuid])
-        .for((connection) => {
+    targets.forEach((uuid) => {
+            let connection = connections[uuid]
             connection.send(JSON.stringify(message))
+            updateUserStatus(uuid)
         })
 }
 
@@ -234,7 +235,7 @@ const getDefaultPlayerState = () => {
 const updateUserStatus = (uuid) => {
     let message = {
         action:"register",
-        inLobby:playersByUuid[uuid].state.inLobby
+        payload:playersByUuid[uuid].state.inLobby
     }
     connections[uuid].send(JSON.stringify(message))
 }
