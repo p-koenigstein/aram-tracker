@@ -7,7 +7,6 @@ export function UserInfo({username, logout, toggleDarkMode, useDarkMode}) {
 
     return <div>
         {username ?
-
             <div className={"userInfo"}>
                 <Navbar>
                     <div>

@@ -37,6 +37,19 @@ export const getElos = async (username) => {
     }
 }
 
+export const getLatestMatch = async () => {
+    await client.connect()
+    const db = client.db(dbName);
+    const collection = db.collection("matchhistory");
+    let matches = await collection.find().toArray()
+    let lastMatch = matches.sort((a,b) => {
+        let dateA = new Date(a.timestamp)
+        let dateB = new Date(b.timestamp)
+        return dateB - dateA
+    },1)[0]
+    return lastMatch
+}
+
 export const recordMatch = (lobby, winner) => {
     let dbEntry = {
         teams: lobby.teams.map((team) => team.map((player) => {
@@ -54,7 +67,6 @@ export const recordMatch = (lobby, winner) => {
         collection.insertOne(dbEntry)
         .then((result) => {
             let matchId = result.insertedId
-            console.log(matchId)
             appendMatch(matchId, lobby.players.map(player => player.username))
                 .then(result => {})
                 .catch(err => console.log(err))
@@ -135,7 +147,6 @@ export const getRanking = async () => {
             elo1v1: player.elo1v1
         }
         currentPlayerObject.winRate = player.matchHistory.filter((match,matchIdx) => {
-            console.log(match)
             return match.teams[match.winner].map((playerObj) => playerObj.username).includes(player.username)
         }).length / player.matchHistory.length
         playerStats.push(currentPlayerObject)

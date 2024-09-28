@@ -1,4 +1,5 @@
 import { useState } from "react"
+import {Button} from "react-bootstrap";
 
 export function Login({ onSubmit }) {
     const [username, setUsername] = useState("")
@@ -25,7 +26,7 @@ export function Login({ onSubmit }) {
                     />
                 </div>
                 <div className={"horiz margin-top"}>
-                    <input type="submit" value={"Log in"}/>
+                    <Button type="submit" variant={"success"} disabled={username===""}>Log in</Button>
                 </div>
             </form>
         </div>

@@ -20,7 +20,7 @@ export function NoLobby({createLobby, joinLobby}) {
                         placeholder="Lobby ID"
                         onChange={(e) => setLobbyId(e.target.value)}
                     />
-                    <input type="submit" value={"Join Lobby"} disabled={lobbyId===""}/>
+                    <Button type="submit" disabled={lobbyId===""}>Join Lobby</Button>
                 </div>
         </form>
 </div>

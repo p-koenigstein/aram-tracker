@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import {Fragment, useEffect, useState} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 import axios from "axios";
 import Lobby from "./lobby/Lobby";
 import ChampionSelect from "./champselect/ChampionSelect";
@@ -17,8 +17,6 @@ import './lobby/ChampSelecct.css'
 import 'bootstrap/dist/css/bootstrap.css'
 import useWebSocket from "react-use-websocket";
 import {Profile} from "./leaderboard/Profile";
-import ReactDOM from "react-dom/client";
-import {LobbyPreview} from "./lobby/LobbyPreview";
 
 
 function App() {
@@ -85,16 +83,18 @@ function App() {
                     <Route path="/"
                            element={<UserInfo username={username} logout={logout} toggleDarkMode={toggleDarkMode}
                                               useDarkMode={useDarkMode}/>}>
-                        <Route path="/" element={username === "" ? <Login onSubmit={updateUserName}/> :
-                            <WelcomePage username={username}/>}/>
-                        <Route path="lobby" element={username === "" ? <Login onSubmit={updateUserName}/> :
-                            <Lobby username={username}/>}/>
-                        <Route path="leaderboard" element={username === "" ? <Login onSubmit={updateUserName}/> :
-                            <LeaderBoard username={username}/>}/>
-                        <Route path="matchhistory"
-                               element={username === "" ? <Login onSubmit={updateUserName}/> : <MatchHistory/>}/>
-                        <Route path="profile" element={username === "" ? <Login onSubmit={updateUserName}/> :
-                            <Profile username={username}/>}/>
+                        {username === "" ?
+                            <Fragment>
+                            <Route path="/" element={<Login onSubmit={updateUserName}/>}/>
+                            <Route path="*" element={<Login onSubmit={updateUserName}/>}/>
+                            </Fragment>
+                        :
+                        <Fragment>
+                            <Route path="lobby" element={<Lobby username={username}/>}/>
+                            <Route path="leaderboard" element={<LeaderBoard username={username}/>}/>
+                            <Route path="matchhistory" element={<MatchHistory username={username}/>}/>
+                            <Route path="profile" element={<Profile username={username}/>}/>
+                        </Fragment>}
                     </Route>
                 </Routes>
             </BrowserRouter>
@@ -102,6 +102,4 @@ function App() {
     )
 
 }
-
-//<a href="https://www.flaticon.com/free-icons/sort-ascending" title="sort ascending icons">Sort ascending icons created by Rahul Kaklotar - Flaticon</a>
 export default App;

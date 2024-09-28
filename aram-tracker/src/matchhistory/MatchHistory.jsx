@@ -5,13 +5,14 @@ import {PlayerSlot} from "../champselect/ChampionSelect";
 import {Link} from "react-router-dom";
 
 
-export function MatchHistory ({})  {
+export function MatchHistory ({username})  {
 
     const [matches, setMatches] = useState([]);
 
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(process.env.REACT_APP_WS_URL,
         {
-            share:true
+            share:true,
+            queryParams: {username}
         })
 
     useEffect(() => {

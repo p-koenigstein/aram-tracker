@@ -8,7 +8,7 @@ import {
     startChampSelect,
     startGame
 } from "./lobby/lobbies.js"
-import {getElos, getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database.js";
+import {getElos, getLatestMatch, getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database.js";
 import {WebSocketServer} from 'ws'
 import url from 'url'
 import http from 'http'
@@ -53,6 +53,10 @@ const handleMessage = (bytes, uuid) => {
                 players:getPlayerList()
             }
             broadcast(message, Object.keys(playersByUuid))
+            broadcast({
+                action:"updateLatestMatch",
+                payload:lastMatch
+                },[uuid])
             break;
         case "createLobby":
             console.log(request)
@@ -258,29 +262,34 @@ const updateUserStatus = (uuid) => {
 
 wsServer.on("connection", (connection, request) => {
     const { username } = url.parse(request.url, true).query
-    const uuid = uuidv4()
-    let player
-    if (Object.keys(playersByName).includes(username)){
-        player = playersByName[username];
-        player.state.online = true
+    if (username) {
+        const uuid = uuidv4()
+        let player
+        if (Object.keys(playersByName).includes(username)) {
+            player = playersByName[username];
+            player.state.online = true
+        } else {
+            player = createPlayer(uuid, username)
+            playersByName[username] = player
+        }
+        playersByUuid[uuid] = player
+        connections[uuid] = connection
+        getElos(username)
+            .then(
+                (elos) => {
+                    player.elo = elos.elo
+                    player.elo1v1 = elos.elo1v1
+                }
+            )
+        updateUserStatus(uuid)
+        connection.on("message", message => handleMessage(message, uuid))
+        connection.on("close", () => handleClose(uuid))
     }
-    else{
-        player = createPlayer(uuid, username)
-        playersByName[username] = player
-    }
-    playersByUuid[uuid] = player
-    connections[uuid] = connection
-    getElos(username)
-        .then(
-            (elos)=> {
-                player.elo = elos.elo
-                player.elo1v1 = elos.elo1v1
-            }
-        )
-    updateUserStatus(uuid)
-    connection.on("message", message => handleMessage(message, uuid))
-    connection.on("close", () => handleClose(uuid))
 })
+
+getLatestMatch()
+    .then((match) => lastMatch=match)
+
 server.listen(port, () => {
     console.log(`WebSocket server is running on port ${port}`)
 })
