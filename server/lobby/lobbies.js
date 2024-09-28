@@ -1,6 +1,5 @@
-import {recordMatch, saveEloUpdates} from "../database/database";
-
-const uuid = require('uuid').v4
+import {recordMatch, saveEloUpdates} from "../database/database.js";
+import {v4 as uuid} from 'uuid'
 
 let lobbies = {
 

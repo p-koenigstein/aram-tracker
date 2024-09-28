@@ -8,6 +8,7 @@ import {MatchSummary} from "./MatchSummary";
 import {Match} from "../matchhistory/MatchHistory";
 import {LobbyPreview} from "./LobbyPreview";
 import {NoLobby} from "./NoLobby";
+import {useRadioGroup} from "@mui/material";
 
 export function Lobby ({username}) {
 
@@ -36,6 +37,21 @@ export function Lobby ({username}) {
             queryParams: {username}
         })
 
+    const createLobby = () => {
+        sendJsonMessage({
+            action:"createLobby"
+        })
+    }
+
+    const joinLobby = (lobbyId) => {
+        sendJsonMessage({
+            action:"joinLobby",
+            payload:{
+                lobbyId
+            }
+        })
+    }
+
     const shuffleTeams = () => {
         sendJsonMessage({action:"shuffleTeams"})
     }
@@ -50,7 +66,12 @@ export function Lobby ({username}) {
             let payload
             switch (lastJsonMessage.action){
                 case "register":
-                    setPlayerLobby(lastJsonMessage.payload)
+                    break;
+                case "createLobby":
+                    setPlayerLobby(lastJsonMessage.payload.lobbyId)
+                    break;
+                case "joinLobby":
+                    setPlayerLobby(lastJsonMessage.payload.lobbyId)
                     break;
                 case "playerList":
                     let currentPlayers = Object.keys(lastJsonMessage.payload.players).map(
@@ -118,11 +139,10 @@ export function Lobby ({username}) {
     if (playerLobby===""){
         return (<div>
             {Object.keys(lastGame).length >0 ? (<div className={"matchHistoryEntry"}>
-
                 <h3 className={"matchHistoryEntry"}>Last Match:</h3>
                 <Match match={lastGame}/>
             </div>) : <div/>}
-            <NoLobby createLobby={} joinLobby={} />
+            <NoLobby createLobby={createLobby} joinLobby={joinLobby} username={username}/>
         </div>)
     }
 
@@ -134,17 +154,21 @@ export function Lobby ({username}) {
                     <h3 className={"matchHistoryEntry"}>Last Match:</h3>
                     <Match match={lastGame}/>
                 </div>) : <div/>}
+                <div>{playerLobby}</div>
                     <PlayerList players={players} startGame={shuffleTeams} joinGame={joinGame} started={false} inLobby={inLobby}/>
             </div>
         case "teamSelect":
             return <div>
 
-                {Object.keys(lastGame).length >0 ? (<div className={"matchHistoryEntry"}>
+                {Object.keys(lastGame).length > 0 ? (<div className={"matchHistoryEntry"}>
 
                     <h3 className={"matchHistoryEntry"}>Last Match:</h3>
                     <Match match={lastGame}/>
                 </div>) : <div/>}
-                {inLobby ? <LobbyPreview teams={teams} shuffle={shuffleTeams} startGame={startGame}/> : <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={true} inLobby={inLobby}/>}
+                <div>{playerLobby}</div>
+                {inLobby ? <LobbyPreview teams={teams} shuffle={shuffleTeams} startGame={startGame}/> :
+                    <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={true}
+                                inLobby={inLobby}/>}
             </div>
         case "draft":
             return <div>

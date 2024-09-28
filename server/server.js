@@ -1,19 +1,18 @@
 import {
     checkLobbyAlive,
-    checkStartCondition, endGame,
+    checkStartCondition, createLobby, endGame,
     joinLobby,
     lockInChampion,
     selectChampion,
     shuffleTeams,
     startChampSelect,
     startGame
-} from "./lobby/lobbies"
-import {getElos, getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database";
-
-const {WebSocketServer} = require('ws')
-const url = require('url')
-const http = require("http");
-const uuidv4 = require("uuid").v4
+} from "./lobby/lobbies.js"
+import {getElos, getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database.js";
+import {WebSocketServer} from 'ws'
+import url from 'url'
+import http from 'http'
+import {v4 as uuidv4} from 'uuid'
 const server = http.createServer()
 
 const wsServer = new WebSocketServer({server})
@@ -55,13 +54,30 @@ const handleMessage = (bytes, uuid) => {
             }
             broadcast(message, Object.keys(playersByUuid))
             break;
+        case "createLobby":
+            console.log(request)
+            lobbyId = createLobby(playersByUuid[uuid].username)
+            broadcast({
+                action:"createLobby",
+                payload:{
+                    lobbyId
+                }
+            },[uuid])
+            break;
         case "joinLobby":
+            console.log(request)
             lobbyId = request.payload.lobbyId
             lobby = joinLobby(playersByUuid[uuid], lobbyId)
             if (lobby){
                 message.action = "updatePlayers"
                 message.payload = lobby.players
                 broadcast(message, lobby.players.map((player) => player.uuid))
+                broadcast({
+                    action:"joinLobby",
+                    payload:{
+                        lobbyId
+                    }
+                },[uuid])
             }
             break;
         case "shuffleTeams":
@@ -254,9 +270,13 @@ wsServer.on("connection", (connection, request) => {
     }
     playersByUuid[uuid] = player
     connections[uuid] = connection
-    let elos = getElos(username)
-    player.elo = elos.elo
-    player.elo1v1 = elos.elo1v1
+    getElos(username)
+        .then(
+            (elos)=> {
+                player.elo = elos.elo
+                player.elo1v1 = elos.elo1v1
+            }
+        )
     updateUserStatus(uuid)
     connection.on("message", message => handleMessage(message, uuid))
     connection.on("close", () => handleClose(uuid))

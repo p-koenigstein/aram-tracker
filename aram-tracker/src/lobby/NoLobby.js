@@ -9,7 +9,7 @@ export function NoLobby({createLobby, joinLobby}) {
             <form
                 onSubmit={(e) => {
                 e.preventDefault()
-                joinLobby(username)
+                joinLobby(lobbyId)
             }}
                 >
                 <div className={"horiz"}>
