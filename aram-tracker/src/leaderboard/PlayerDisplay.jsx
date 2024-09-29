@@ -3,7 +3,9 @@ import {Link} from "react-router-dom";
 
 export const PlayerDisplay = ({playername, stats, isTeammate}) => {
 
-    return  <Link to={"/profile?player="+playername}  className={"playerList shrink defaultPadding "}>
+    return  <div   className={"playerList shrink defaultPadding "}>
+        <Link to={"/profile?player="+playername}>
         {playername} {Math.round(stats.winRate*100)}% ({stats.won}-{stats.lost})
     </Link>
+    </div>
 }
