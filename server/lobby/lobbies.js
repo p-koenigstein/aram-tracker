@@ -37,6 +37,7 @@ export const createLobby = (creatorUserName, playerObject) => {
         champs : [[],[]],
         teams : [[],[]],
         fearless : false,
+        fearlessChampsPlayed: [],
         ranked : true,
         creator : creatorUserName,
         status : "lobby"
@@ -143,15 +144,18 @@ export const startGame = (lobbyId) => {
 export const endGame = (lobbyId, winner) => {
     let lobby = lobbies[lobbyId]
     let lastMatch = recordMatch(lobby, winner)
+    lobby.teams.reduce((a1,a2) => [...a1,...a2]).map((player) => player.state.selectedChampion).forEach((champ) => lobby.fearlessChampsPlayed.push(champ))
+    console.log(lobby.fearlessChampsPlayed)
+    lobby.availableChamps = allChamps
+    if (lobby.fearless){
+        lobby.availableChamps = lobby.availableChamps.filter((champ) => !(lobby.fearlessChampsPlayed.includes(champ)))
+    }
     updateElo(lobby, winner)
     lobby.teams = [[],[]]
     lobby.champs = [[],[]]
     lobby.players.forEach((player) => {
         resetPlayer(player)
     })
-    if (!lobby.fearless){
-        lobby.availableChamps = allChamps
-    }
     lobby.status = "lobby"
     return lastMatch
 }
