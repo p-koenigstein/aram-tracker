@@ -53,12 +53,12 @@ export function Profile ({username}) {
             <Row>
                <Col>
                    <div className={"horiz"}>
-                       <h4>Teammates</h4>
+                       <h4>With Teammates</h4>
                    </div>
                </Col>
                 <Col>
                     <div className={"horiz"}>
-                        <h4>Enemies</h4>
+                        <h4>Against Enemies</h4>
                     </div>
 
                 </Col>
@@ -67,7 +67,7 @@ export function Profile ({username}) {
                 <Row style={{"margin-bottom":10}}>
                 <Col>
                     <div className={"horiz teammate"}>
-                    {Object.entries(teammates.players).sort(sortWinrate).map(([playername,stats]) => <PlayerDisplay playername={playername} stats={stats} isTeammate={true}/>)}
+                        {Object.entries(teammates.players).sort(sortWinrate).map(([playername,stats]) => <PlayerDisplay playername={playername} stats={stats} isTeammate={true}/>)}
                     </div>
                 </Col>
                 <Col>

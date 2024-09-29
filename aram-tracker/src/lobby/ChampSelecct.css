@@ -127,17 +127,17 @@
     margin:10px;
 }
 
-.leaderboardEntry a{
-    text-decoration: none;
-    color: var(--bs-body-color);
+a{
+    text-decoration: none !important;
+    color: var(--bs-body-color) !important;
     font-weight:bold
 }
 
-.leaderboardEntry a:hover{
+a:hover{
     color:var(--bs-secondary-color);
 }
 
-.userInfo a:hover{
+a:hover{
     color:var(--bs-secondary-color);
 }
 
@@ -226,4 +226,5 @@
 
 .champEntry {
     display: inline-block !important;
+    font-weight: bold;
 }
