@@ -2,7 +2,7 @@ import {Button, ListGroup, ListGroupItem} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 
 
-export function PlayerList({inLobby, players, startGame, joinGame, started}) {
+export function PlayerList({inLobby, leaveLobby, players, startGame, joinGame, started}) {
 
     const [buttonText, setButtonText] = useState("");
     const [buttonDisabled, setButtonDisabled] = useState(false);
@@ -51,7 +51,13 @@ export function PlayerList({inLobby, players, startGame, joinGame, started}) {
                     onClick={inLobby ? startGame : joinGame}
                     variant={inLobby ? "outline-warning" : "outline-success"}
                     disabled={buttonDisabled}
+                    className={"defaultMargin"}
                 >{buttonText}</Button>
+                <Button
+                    onClick={() => leaveLobby()}
+                    variant={"outline-danger"}
+                    className={"defaultMargin"}
+                >Leave Lobby</Button>
             </div>
         </div>
     )

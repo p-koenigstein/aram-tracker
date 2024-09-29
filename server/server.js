@@ -1,7 +1,7 @@
 import {
     checkLobbyAlive,
     checkStartCondition, createLobby, endGame, getLobby, getTeamNames,
-    joinLobby,
+    joinLobby, leaveLobby,
     lockInChampion,
     selectChampion,
     shuffleTeams,
@@ -56,6 +56,19 @@ const handleMessage = (bytes, uuid) => {
     let lobby
     let player
     switch (request["action"]) {
+        case "reloadLobby":
+            lobbyId = playersByUuid[uuid].state.inLobby
+            if (lobbyId !== ""){
+                let lobby = getLobby(lobbyId)
+                message.action = "updateLobby"
+                message.payload = {lobby}
+                broadcast(message, [uuid])
+            }
+            broadcast({
+                action:"updateLatestMatch",
+                payload:lastMatch
+            },[uuid])
+            break;
         case "register":
             message.action = "playersOnline"
             message.payload = {
@@ -70,12 +83,23 @@ const handleMessage = (bytes, uuid) => {
         case "createLobby":
             lobby = createLobby(playersByUuid[uuid].username, playersByUuid[uuid])
             playersByUuid[uuid].state.inLobby = lobby.lobbyId
+            console.log("createlOby")
             broadcast({
                 action:"createLobby",
                 payload:{
                     lobby
                 }
             },[uuid])
+            break;
+        case 'leaveLobby':
+            player = playersByUuid[uuid]
+            lobby = leaveLobby(player)
+            if (lobby) {
+                message.action="updateLobby"
+                message.payload={lobby}
+                console.log(lobby.players.map((player)=> player.username))
+                broadcast(message, lobby.players.map((player)=> player.uuid))
+            }
             break;
         case "joinLobby":
             lobbyId = request.payload.lobbyId
@@ -259,7 +283,13 @@ const handleClose = (uuid) => {
     delete playersByUuid[uuid]
     if (player.state.inLobby !== ""){
         player.state.online = false
-        checkLobbyAlive(player.state.inLobby)
+        let lobby = leaveLobby(player)
+        if (lobby) {
+            let message = {}
+            message.action="updateLobby"
+            message.payload={lobby}
+            broadcast(message, lobby.players.map((player)=> player.uuid))
+        }
     }
 }
 
@@ -295,10 +325,13 @@ wsServer.on("connection", (connection, request) => {
     if (username) {
         const uuid = uuidv4()
         let player
+        console.log(username)
+        console.log(playersByName)
         if (Object.keys(playersByName).includes(username)) {
             player = playersByName[username];
             player.state.online = true
         } else {
+            console.log("new ",username)
             player = createPlayer(uuid, username)
             playersByName[username] = player
         }

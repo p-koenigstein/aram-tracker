@@ -60,19 +60,14 @@ export const joinLobby = (playerObject, lobbyId) => {
 }
 
 export const leaveLobby = (playerObject) => {
-    let lobbyId = playerObject.lobby
+    let lobbyId = playerObject.state.inLobby
     playerObject.lobby = ""
-    if (lobbyId !=="" && Object.keys(lobbyId).includes(lobbyId)) {
+    console.log("lobbyId", lobbyId)
+    if (lobbyId !=="" && Object.keys(lobbies).includes(lobbyId)) {
         let lobby = lobbies[lobbyId]
-        if(lobby.players.includes(playerObject)) {
-            lobby.players.remove(playerObject)
-        }
-        lobby.teams.forEach((team) => {
-            if(team.includes(playerObject)){
-                team.remove(playerObject)
-            }
-        })
-        return checkLobbyAlive()
+        lobby.players = lobby.players.filter((player) => player.username!==playerObject.username)
+        console.log("checking lobbyAlive")
+        return checkLobbyAlive(lobbyId)
     }
     return undefined
 }
@@ -87,10 +82,11 @@ export const toggleFearless = (lobbyId, username) => {
 }
 
 export const checkLobbyAlive = (lobbyId) => {
-    if (Object.keys(lobbies).includes(lobbyId)){
+    if (!Object.keys(lobbies).includes(lobbyId)){
         return false
     }
-    if (lobbies[lobbyId].players.filter((player) => player.inLobby === lobbyId && player.online).length > 0){
+    console.log(lobbies[lobbyId].players.map((player) => player.state.online))
+    if (lobbies[lobbyId].players.filter((player) => player.state.inLobby === lobbyId && player.state.online).length > 0){
         return lobbies[lobbyId]
     }
     delete lobbies[lobbyId]

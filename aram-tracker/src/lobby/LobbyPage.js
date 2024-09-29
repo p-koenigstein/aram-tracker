@@ -33,6 +33,8 @@ export function LobbyPage ({username}) {
         })
 
     useEffect(() => {
+        console.log(playerLobby)
+        console.log(Object.keys(playerLobby))
         setInLobby(Object.keys(playerLobby).length !== 0)
     },[playerLobby])
 
@@ -49,6 +51,14 @@ export function LobbyPage ({username}) {
                 lobbyId
             }
         })
+    }
+
+    const leaveLobby = () => {
+        sendJsonMessage({
+            action:"leaveLobby"
+        })
+        setPlayerLobby({})
+        setInLobby(false)
     }
 
     const shuffleTeams = () => {
@@ -72,7 +82,7 @@ export function LobbyPage ({username}) {
     }
 
     useEffect(() => {
-        sendJsonMessage({action:"register"})
+        sendJsonMessage({action:"reloadLobby"})
     }, []);
 
     useEffect(() => {
@@ -80,15 +90,21 @@ export function LobbyPage ({username}) {
         if (lastJsonMessage !== null){
             let payload
             switch (lastJsonMessage.action){
-                case "register":
+                case "updateLobby":
+                    console.log("updateLobby")
+                    setPlayerLobby(lastJsonMessage.payload.lobby)
                     break;
                 case "createLobby":
+                    console.log("createLobby")
+                    console.log(lastJsonMessage)
                     setPlayerLobby(lastJsonMessage.payload.lobby)
                     break;
                 case "joinLobby":
+                    console.log("joinLobby")
                     setPlayerLobby(lastJsonMessage.payload.lobby)
                     break;
                 case "updatePlayers":
+                    console.log("updatePlayers")
                     setPlayerLobby(lastJsonMessage.payload.lobby)
                     break;
                 case "playerList":
@@ -126,6 +142,7 @@ export function LobbyPage ({username}) {
                     setLastGame(lastJsonMessage.payload)
                     break;
                 case "returnToLobby":
+                    console.log("returnToLobby")
                     setStatus(lastJsonMessage.payload.lobby.status)
                     setPlayerLobby(lastJsonMessage.payload.lobby)
                     break;
@@ -154,7 +171,8 @@ export function LobbyPage ({username}) {
             <PreLobby createLobby={createLobby} joinLobby={joinLobby} username={username}/>
         </div>)
     }
-
+    console.log(inLobby)
+    console.log(playerLobby)
     switch (status) {
         case "lobby":
             return <div>
@@ -163,7 +181,7 @@ export function LobbyPage ({username}) {
                 <div className={"matchHistoryEntry"}>
                 <h4>Invite-code:  {playerLobby.lobbyId} </h4><h5> Fearless Mode<Switch checked={playerLobby.fearless} onChange={() => toggleFearless()} disabled={username!==playerLobby.creator}/></h5>
                 </div>
-                <PlayerList players={playerLobby.players} startGame={shuffleTeams} started={false} inLobby={true}/>
+                <PlayerList players={playerLobby.players} startGame={shuffleTeams} leaveLobby={leaveLobby} started={false} inLobby={true}/>
             </div>
         case "teamSelect":
             return <div>
