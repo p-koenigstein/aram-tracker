@@ -92,7 +92,10 @@ export function LobbyPage ({username}) {
             switch (lastJsonMessage.action){
                 case "updateLobby":
                     console.log("updateLobby")
-                    setPlayerLobby(lastJsonMessage.payload.lobby)
+                    console.log(lastJsonMessage.payload)
+                    if(Object.keys(lastJsonMessage.payload).length > 0){
+                        setPlayerLobby(lastJsonMessage.payload.lobby)
+                    }
                     break;
                 case "createLobby":
                     console.log("createLobby")

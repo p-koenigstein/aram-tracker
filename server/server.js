@@ -106,17 +106,11 @@ const handleMessage = (bytes, uuid) => {
             lobby = joinLobby(playersByUuid[uuid], lobbyId)
             if (lobby){
                 playersByUuid[uuid].state.inLobby = lobbyId
-                message.action = "updatePlayers"
+                message.action = "updateLobby"
                 message.payload = {
                     lobby
                 }
                 broadcast(message, lobby.players.map((player) => player.uuid))
-                broadcast({
-                    action:"joinLobby",
-                    payload:{
-                        lobby
-                    }
-                },[uuid])
             }
             break;
         case "toggleFearless":
@@ -344,6 +338,15 @@ wsServer.on("connection", (connection, request) => {
                     player.elo1v1 = elos.elo1v1
                 }
             )
+        if(player.state.inLobby!==""){
+            let lobby = getLobby(player.state.inLobby)
+            let message = {}
+            message.action="updateLobby"
+            message.payload={lobby}
+            console.log("login into lobby")
+            console.log(player.state.online)
+            broadcast(message, lobby.players.map((player)=> player.uuid))
+        }
         updateUserStatus(uuid)
         connection.on("message", message => handleMessage(message, uuid))
         connection.on("close", () => handleClose(uuid))

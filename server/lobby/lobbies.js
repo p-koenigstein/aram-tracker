@@ -61,7 +61,7 @@ export const joinLobby = (playerObject, lobbyId) => {
 
 export const leaveLobby = (playerObject) => {
     let lobbyId = playerObject.state.inLobby
-    playerObject.lobby = ""
+    playerObject.state.inLobby = ""
     console.log("lobbyId", lobbyId)
     if (lobbyId !=="" && Object.keys(lobbies).includes(lobbyId)) {
         let lobby = lobbies[lobbyId]
