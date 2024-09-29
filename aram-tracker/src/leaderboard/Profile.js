@@ -130,9 +130,7 @@ export function Profile ({username}) {
                                 <PlayerDisplay playername={playername} stats={stats} isTeammate={true}/>)}
                         </div>
                         <div className={"horiz"}>
-                            {useMostPlayers &&
-                                <Button variant={"secondary"} onClick={() => setUseMostPlayers(false)}>more</Button>
-                            }
+                                <Button variant={"secondary"} onClick={() => setUseMostPlayers(!useMostPlayers)}>{useMostPlayers?"more":"less"}</Button>
                         </div>
                     </Col>
                     <Col>
@@ -142,9 +140,7 @@ export function Profile ({username}) {
                                     playername={playername} stats={stats} isTeammate={false}/>)}
                         </div>
                         <div className={"horiz"}>
-                            {useMostPlayers &&
-                            <Button variant={"secondary"} onClick={() => setUseMostPlayers(false)}>more</Button>
-                            }
+                                <Button variant={"secondary"} onClick={() => setUseMostPlayers(!useMostPlayers)}>{useMostPlayers?"more":"less"}</Button>
                         </div>
                     </Col>
                 </Row>
@@ -159,9 +155,7 @@ export function Profile ({username}) {
                                 champName={champName} stats={stats} isTeammate={true}/>)}
                     </div>
                     <div className={"horiz"}>
-                        {useMostChamps &&
-                        <Button variant={"secondary"} onClick={() => setUseMostChamps(false)}>more</Button>
-                    }
+                        <Button variant={"secondary"} onClick={() => setUseMostChamps(!useMostChamps)}>{useMostChamps?"more":"less"}</Button>
                     </div>
                 </Col>
                 <Col>
@@ -170,9 +164,7 @@ export function Profile ({username}) {
                             champName={champName} stats={stats} isTeammate={false}/>)}
                     </div>
                     <div className={"horiz"}>
-                        {useMostChamps &&
-                        <Button variant={"secondary"} onClick={() => setUseMostChamps(false)}>more</Button>
-                    }
+                        <Button variant={"secondary"} onClick={() => setUseMostChamps(!useMostChamps)}>{useMostChamps?"more":"less"}</Button>
                     </div>
                 </Col>
             </Row>
