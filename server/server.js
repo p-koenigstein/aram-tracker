@@ -35,8 +35,10 @@ let lastMatch = {}
 const broadcast = (message, targets) => {
     targets.forEach((uuid) => {
             let connection = connections[uuid]
-            connection.send(JSON.stringify(message))
-            updateUserStatus(uuid)
+            if (connection){
+                connection.send(JSON.stringify(message))
+                updateUserStatus(uuid)
+            }
         })
 }
 
