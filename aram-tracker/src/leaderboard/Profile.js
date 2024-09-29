@@ -2,7 +2,7 @@ import {useSearchParams} from "react-router-dom";
 import useWebSocket from "react-use-websocket";
 import {useEffect, useState} from "react";
 import {MatchList} from "../matchhistory/MatchHistory";
-import {Col, Row, Table} from "react-bootstrap";
+import {Button, Col, Row, Table} from "react-bootstrap";
 import {PlayerDisplay} from "./PlayerDisplay";
 import {ChampDisplay} from "./ChampDisplay";
 
@@ -10,8 +10,12 @@ export function Profile ({username}) {
 
     const [searchParams] = useSearchParams()
     const [matchHistory, setMatchHistory] = useState([]);
-    const [enemies, setEnemies] = useState({});
+    const [useMostPlayers, setUseMostPlayers] = useState(true);
+    const [useMostChamps, setUseMostChamps] = useState(true);
     const [teammates, setTeammates] = useState({});
+    const [displayTeammates, setDisplayTeammates] = useState({})
+    const [enemies, setEnemies] = useState({});
+    const [displayEnemies, setDisplayEnemies] = useState({})
     const playername = searchParams.get('player')
 
 
@@ -25,6 +29,10 @@ export function Profile ({username}) {
     useEffect(() => {
         sendJsonMessage({action:"requestProfile", payload:{player:playername}})
     }, [playername]);
+
+    useEffect(() => {
+        updateDisplay()
+    },[useMostChamps, useMostPlayers])
 
     const sortWinrate = ([nameA, statsA],[nameB, statsB]) => {
         return statsB.winRate-statsA.winRate
@@ -41,13 +49,54 @@ export function Profile ({username}) {
                     setMatchHistory(lastJsonMessage.payload.matches)
                     setEnemies(lastJsonMessage.payload.enemies)
                     setTeammates(lastJsonMessage.payload.teammates)
+                    updateDisplay()
                 }
             }
         }
     }, [lastJsonMessage]);
 
-    console.log(teammates)
-    console.log(enemies)
+    const sortGameAmount = ([nameA, statsA], [nameB, statsB]) => {
+        return (statsB.lost + statsB.won)- (statsA.lost + statsA.won)
+    }
+
+    const updateDisplay = () => {
+        let team = {}
+        let enem = {}
+        if (useMostChamps){
+            if(Object.keys(enemies).includes("champs")){
+                enem.champs = Object.fromEntries(Object.entries(enemies.champs).sort(sortGameAmount).slice(0,5))
+            }
+            if(Object.keys(teammates).includes("champs")) {
+                team.champs = Object.fromEntries(Object.entries(teammates.champs).sort(sortGameAmount).slice(0, 5))
+            }
+        }
+        else{
+            if(Object.keys(enemies).includes("champs")){
+                enem.champs = enemies.champs
+            }
+            if(Object.keys(teammates).includes("champs")) {
+                team.champs = teammates.champs
+            }
+        }
+        if (useMostPlayers){
+            if(Object.keys(enemies).includes("players")) {
+                enem.players = Object.fromEntries(Object.entries(enemies.players).sort(sortGameAmount).slice(0, 5))
+            }
+            if(Object.keys(teammates).includes("players")) {
+                team.players = Object.fromEntries(Object.entries(teammates.players).sort(sortGameAmount).slice(0, 5))
+            }
+        }
+        else{
+            if(Object.keys(enemies).includes("players")) {
+                enem.players = enemies.players
+            }
+            if(Object.keys(teammates).includes("players")) {
+                team.players = teammates.players
+            }
+        }
+        setDisplayTeammates(team)
+        setDisplayEnemies(enem)
+    }
 
     return (<div>
         <h3 className={"horiz"}>Profil von {playername===null ? username : playername}</h3>
@@ -67,42 +116,65 @@ export function Profile ({username}) {
 
                 </Col>
             </Row>
-            {Object.keys(teammates).includes('players') &&
+            {Object.keys(displayTeammates).includes('players') &&
                 <Row style={{"margin-bottom":10}}>
-                <Col>
-                    <div className={"horiz teammate"}>
-                        {Object.entries(teammates.players).sort(sortWinrate).map(([playername,stats]) => <PlayerDisplay playername={playername} stats={stats} isTeammate={true}/>)}
-                    </div>
-                </Col>
-                <Col>
-                    <div className={"horiz enemy"}>
-                        {Object.entries(enemies.players).sort(sortWinrate).map(([playername, stats]) => <PlayerDisplay
-                            playername={playername} stats={stats} isTeammate={false}/>)}
-                    </div>
-                </Col>
-            </Row>
+                    <Col>
+                        <div className={"horiz teammate"}>
+                            {Object.entries(displayTeammates.players).sort(sortWinrate).map(([playername, stats]) =>
+                                <PlayerDisplay playername={playername} stats={stats} isTeammate={true}/>)}
+                        </div>
+                        <div className={"horiz"}>
+                            {useMostPlayers &&
+                                <Button variant={"secondary"} onClick={() => setUseMostPlayers(false)}>more</Button>
+                            }
+                        </div>
+                    </Col>
+                    <Col>
+                        <div className={"horiz enemy"}>
+                            {Object.entries(displayEnemies.players).sort(sortWinrate).map(([playername, stats]) =>
+                                <PlayerDisplay
+                                    playername={playername} stats={stats} isTeammate={false}/>)}
+                        </div>
+                        <div className={"horiz"}>
+                            {useMostPlayers &&
+                            <Button variant={"secondary"} onClick={() => setUseMostPlayers(false)}>more</Button>
+                            }
+                        </div>
+                    </Col>
+                </Row>
             }
 
-            {Object.keys(teammates).includes('champs') &&
-            <Row>
-                <Col>
-                    <div className={"horiz teammate"}>
-                        {Object.entries(teammates.champs).sort(sortName).map(([champName, stats]) => <ChampDisplay
-                            champName={champName} stats={stats} isTeammate={true}/>)}
+            {Object.keys(displayTeammates).includes('champs') &&
+                <Row>
+                    <Col>
+                    <div className={"horiz teammate "+(useMostChamps ? "":"smallIcons")}>
+                        {Object.entries(displayTeammates.champs).sort(sortName).map(([champName, stats]) =>
+                            <ChampDisplay
+                                champName={champName} stats={stats} isTeammate={true}/>)}
+                    </div>
+                    <div className={"horiz"}>
+                        {useMostChamps &&
+                        <Button variant={"secondary"} onClick={() => setUseMostChamps(false)}>more</Button>
+                    }
                     </div>
                 </Col>
                 <Col>
-                    <div className={"horiz enemy"}>
-                        {Object.entries(enemies.champs).sort(sortName).map(([champName, stats]) => <ChampDisplay
+                    <div className={"horiz enemy "+(useMostChamps ? "":"smallIcons")}>
+                        {Object.entries(displayEnemies.champs).sort(sortName).map(([champName, stats]) => <ChampDisplay
                             champName={champName} stats={stats} isTeammate={false}/>)}
+                    </div>
+                    <div className={"horiz"}>
+                        {useMostChamps &&
+                        <Button variant={"secondary"} onClick={() => setUseMostChamps(false)}>more</Button>
+                    }
                     </div>
                 </Col>
             </Row>
             }
         </Table>
-        <div className={"horiz"}>
-            <div className={"horiz"}>
-            <h3>Match History </h3>
+                <div className={"horiz"}>
+                    <div className={"horiz"}>
+                        <h3>Match History </h3>
             </div>
             <MatchList matches={matchHistory}/>
         </div>

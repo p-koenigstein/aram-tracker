@@ -253,6 +253,7 @@ const displayWinnerButtons = (lobbyId) =>{
 
 const handleClose = (uuid) => {
     let player = playersByUuid[uuid]
+    console.log("disconnect ", uuid, player.username)
     delete connections[uuid]
     playersByUuid[uuid].uuid = ""
     delete playersByUuid[uuid]
