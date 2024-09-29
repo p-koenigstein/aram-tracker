@@ -30,6 +30,10 @@ export function Profile ({username}) {
         return statsB.winRate-statsA.winRate
     }
 
+    const sortName = ([nameA, statsA],[nameB, statsB]) => {
+        return nameA.localeCompare(nameB)
+    }
+
     useEffect(() => {
         if(lastJsonMessage !== null){
             switch(lastJsonMessage.action){
@@ -83,13 +87,13 @@ export function Profile ({username}) {
             <Row>
                 <Col>
                     <div className={"horiz teammate"}>
-                        {Object.entries(teammates.champs).sort(sortWinrate).map(([champName, stats]) => <ChampDisplay
+                        {Object.entries(teammates.champs).sort(sortName).map(([champName, stats]) => <ChampDisplay
                             champName={champName} stats={stats} isTeammate={true}/>)}
                     </div>
                 </Col>
                 <Col>
                     <div className={"horiz enemy"}>
-                        {Object.entries(enemies.champs).sort(sortWinrate).map(([champName, stats]) => <ChampDisplay
+                        {Object.entries(enemies.champs).sort(sortName).map(([champName, stats]) => <ChampDisplay
                             champName={champName} stats={stats} isTeammate={false}/>)}
                     </div>
                 </Col>
