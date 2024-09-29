@@ -16,7 +16,10 @@ export function Profile ({username}) {
     const [displayTeammates, setDisplayTeammates] = useState({})
     const [enemies, setEnemies] = useState({});
     const [displayEnemies, setDisplayEnemies] = useState({})
-    const playername = searchParams.get('player')
+    let playername = searchParams.get('player')
+    if(playername===null){
+        playername = username
+    }
 
 
     const WS_URL = process.env.REACT_APP_WS_URL;
