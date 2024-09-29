@@ -120,7 +120,11 @@ export const getPlayerMatchHistory = async (userName) => {
     if (playerAnswer.length > 0){
         let player = playerAnswer[0]
         let matchHistory = player.matchHistory
-        return await matchCollection.find({_id:{$in:matchHistory}}).toArray()
+        return (await matchCollection.find({_id: {$in: matchHistory}}).toArray()).sort((a, b) => {
+            let dateA = new Date(a.timestamp)
+            let dateB = new Date(b.timestamp)
+            return dateB - dateA
+        });
     }
     return []
 }
