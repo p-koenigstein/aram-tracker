@@ -84,7 +84,11 @@ export function Match ({match}) {
 
     const renderMatchDate = (date) => {
         let realDate = new Date(date)
-        return realDate.toLocaleDateString('de-DE') + " " + realDate.getHours() + ":" +realDate.getMinutes()
+        let mins = realDate.getMinutes()
+        let minString = mins > 9 ? mins : "0"+mins
+        let hours = realDate.getHours()
+        let hoursString = hours > 9 ? hours : "0"+hours
+        return realDate.toLocaleDateString('de-DE') + " " + hoursString + ":" + minString
     }
     return (
         <div className={"matchHistoryEntry"}>

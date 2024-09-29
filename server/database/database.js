@@ -106,7 +106,7 @@ export const getMatchHistory = async () => {
     let matches = (await collection.find().toArray()).sort((a, b) => {
         let dateA = new Date(a.timestamp)
         let dateB = new Date(b.timestamp)
-        return dateA - dateB
+        return dateB - dateA
     })
     return matches
 }
