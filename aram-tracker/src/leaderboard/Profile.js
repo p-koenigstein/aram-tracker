@@ -126,7 +126,7 @@ export function Profile ({username}) {
                 <Row style={{"margin-bottom":10}}>
                     <Col>
                         <div className={"horiz teammate"}>
-                            {Object.entries(displayTeammates.players).sort(sortWinrate).map(([playername, stats]) =>
+                            {Object.entries(displayTeammates.players).sort(sortGameAmount).map(([playername, stats]) =>
                                 <PlayerDisplay playername={playername} stats={stats} isTeammate={true}/>)}
                         </div>
                         <div className={"horiz"}>
@@ -135,7 +135,7 @@ export function Profile ({username}) {
                     </Col>
                     <Col>
                         <div className={"horiz enemy"}>
-                            {Object.entries(displayEnemies.players).sort(sortWinrate).map(([playername, stats]) =>
+                            {Object.entries(displayEnemies.players).sort(sortGameAmount).map(([playername, stats]) =>
                                 <PlayerDisplay
                                     playername={playername} stats={stats} isTeammate={false}/>)}
                         </div>
