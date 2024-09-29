@@ -1,4 +1,4 @@
-import Lobby from "../lobby/Lobby";
+import LobbyPage from "../lobby/LobbyPage";
 import {Button} from "react-bootstrap";
 import {Link} from "react-router-dom";
 

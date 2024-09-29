@@ -51,16 +51,19 @@ export const getLatestMatch = async () => {
 }
 
 export const recordMatch = (lobby, winner) => {
+    console.log(lobby)
     let dbEntry = {
         teams: lobby.teams.map((team) => team.map((player) => {
+            console.log(player)
             return {
                 username: player.username,
-                playerName: player.state.selectedChampion
+                champName: player.state.selectedChampion
             }
         })),
         winner,
         timestamp : new Date(Date.now()).toISOString()
     }
+    console.log(dbEntry)
     client.connect().then(() => {
         const db = client.db(dbName);
         const collection = db.collection('matchhistory');

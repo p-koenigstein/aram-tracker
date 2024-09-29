@@ -28,9 +28,10 @@ let allChamps = [
     "Naafiri", "Hwei", "Smolder", "Aurora"
 ]
 
-export const createLobby = (creatorUserName) => {
+export const createLobby = (creatorUserName, playerObject) => {
     let lobbyId = uuid().split("-")[0]
     let lobby = {
+        lobbyId,
         players : [],
         availableChamps : allChamps,
         champs : [[],[]],
@@ -40,8 +41,9 @@ export const createLobby = (creatorUserName) => {
         creator : creatorUserName,
         status : "lobby"
     }
+    lobby.players.push(playerObject)
     lobbies[lobbyId] = lobby
-    return lobbyId
+    return lobby
 }
 
 export const joinLobby = (playerObject, lobbyId) => {
@@ -49,7 +51,6 @@ export const joinLobby = (playerObject, lobbyId) => {
         let lobby = lobbies[lobbyId]
         if (lobby.status==="lobby") {
             lobby.players.push(playerObject)
-            playerObject.lobby = lobbyId
             return lobby
         }
         return false
@@ -76,6 +77,9 @@ export const leaveLobby = (playerObject) => {
 }
 
 export const checkLobbyAlive = (lobbyId) => {
+    if (Object.keys(lobbies).includes(lobbyId)){
+        return false
+    }
     if (lobbies[lobbyId].players.filter((player) => player.inLobby === lobbyId && player.online).length > 0){
         return lobbies[lobbyId]
     }
@@ -91,10 +95,10 @@ export const shuffleTeams = (lobbyId) => {
         let teams = [[],[]]
         const randomOrder = players.sort((a, b) => 0.5 - Math.random())
         let current_team = 0
-        for (let playerUUID in randomOrder) {
-            let currentUUID = randomOrder[playerUUID]
-            teams[current_team][currentUUID] = players[currentUUID]
-            players[currentUUID].state.team = current_team
+        for (let idx in randomOrder) {
+            let player = randomOrder[idx]
+            teams[current_team].push(player)
+            player.state.team = current_team
             current_team = (current_team + 1) % 2
         }
         lobby.teams = teams
@@ -106,7 +110,7 @@ export const shuffleTeams = (lobbyId) => {
 export const startChampSelect = (lobbyId) => {
     let lobby = lobbies[lobbyId]
     if (lobby.players.filter((player) => player.state.online).length>1) {
-        lobby.champs = getDraft(lobby.champs,lobby.teams.map((team) => team.length))
+        lobby.champs = getDraft(lobby.availableChamps,lobby.teams.map((team) => team.length))
         lobby.status = "draft"
         return lobby
     }
@@ -114,11 +118,12 @@ export const startChampSelect = (lobbyId) => {
 }
 
 export const getDraft = (champs, teamSizes) => {
-    let playerCount = Math.max(teamSizes)
+    let playerCount = teamSizes[0]
     const rolls = 3
     const total_picks = Math.max(playerCount * rolls,10);
     const champs_shuffled = champs.sort((c1,c2) => 0.5-Math.random())
-    return [champs_shuffled.slice(0,total_picks), champs_shuffled.slice(total_picks,total_picks*2)]
+    let answer = [champs_shuffled.slice(0,total_picks), champs_shuffled.slice(total_picks,total_picks*2)]
+    return answer
 }
 
 export const startGame = (lobbyId) => {
@@ -131,11 +136,24 @@ export const endGame = (lobbyId, winner) => {
     let lastMatch = recordMatch(lobby, winner)
     updateElo(lobby, winner)
     lobby.teams = [[],[]]
+    lobby.champs = [[],[]]
+    lobby.players.forEach((player) => {
+        resetPlayer(player)
+    })
     if (!lobby.fearless){
         lobby.availableChamps = allChamps
     }
     lobby.status = "lobby"
     return lastMatch
+}
+
+export const resetPlayer = (playerObject) => {
+    playerObject.state.lockedIn = false
+    playerObject.state.selectedChampion = ""
+}
+
+export const getLobby = (lobbyId) => {
+    return lobbies[lobbyId]
 }
 
 const updateElo = (lobby, winner) => {
@@ -163,21 +181,32 @@ const updateElo = (lobby, winner) => {
 
 export const selectChampion = (playerName, lobbyId, champName) => {
     let lobby = lobbies[lobbyId]
-    let team = lobby.teams.find((team, idx) => team.map((player) => player.username).includes(playerName)).map((team,idx) => idx)
+    let player = lobby.players.find((player) => player.username === playerName)
+    let team = player.state.team
     if (!lobby.champs[team].includes(champName)){
+        console.log("cant pick that champ")
         return false
     }
-    let player = lobby.players.find((player) => player.username === playerName)[0]
+    console.log(player)
     if (player.state.lockedIn){
+        console.log("already locked in")
         return false
     }
     player.state.selectedChampion = champName
+    console.log("selected champ")
     return lobby
+}
+
+export const getTeamNames = (lobbyId) => {
+    return lobbies[lobbyId].teams.map(team => {
+        let teamLeader = Object.keys(team).sort((p1,p2) => 0.5 - Math.random())[0]
+        return "Team "+team[teamLeader].username
+    })
 }
 
 export const lockInChampion = (playerName, lobbyId) => {
     let lobby = lobbies[lobbyId]
-    let player = lobby.players.find((player) => player.username === playerName)[0]
+    let player = lobby.players.find((player) => player.username === playerName)
     if (player.state.selectedChampion==="")
     {
         return false
@@ -188,5 +217,5 @@ export const lockInChampion = (playerName, lobbyId) => {
 
 export const checkStartCondition = (lobbyId) => {
     let lobby = lobbies[lobbyId]
-    return lobby.players.filter((player) => !player.state.lockedIn && player.state.online).length > 1
+    return !(lobby.players.filter((player) => !player.state.lockedIn && player.state.online).length > 0)
 }

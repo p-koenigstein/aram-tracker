@@ -1,6 +1,6 @@
 import {
     checkLobbyAlive,
-    checkStartCondition, createLobby, endGame,
+    checkStartCondition, createLobby, endGame, getLobby, getTeamNames,
     joinLobby,
     lockInChampion,
     selectChampion,
@@ -59,34 +59,37 @@ const handleMessage = (bytes, uuid) => {
                 },[uuid])
             break;
         case "createLobby":
-            console.log(request)
-            lobbyId = createLobby(playersByUuid[uuid].username)
+            lobby = createLobby(playersByUuid[uuid].username, playersByUuid[uuid])
+            playersByUuid[uuid].state.inLobby = lobby.lobbyId
             broadcast({
                 action:"createLobby",
                 payload:{
-                    lobbyId
+                    lobby
                 }
             },[uuid])
             break;
         case "joinLobby":
-            console.log(request)
             lobbyId = request.payload.lobbyId
             lobby = joinLobby(playersByUuid[uuid], lobbyId)
             if (lobby){
+                playersByUuid[uuid].state.inLobby = lobbyId
                 message.action = "updatePlayers"
-                message.payload = lobby.players
+                message.payload = {
+                    lobby
+                }
                 broadcast(message, lobby.players.map((player) => player.uuid))
                 broadcast({
                     action:"joinLobby",
                     payload:{
-                        lobbyId
+                        lobby
                     }
                 },[uuid])
             }
             break;
         case "shuffleTeams":
-            lobbyId = playersByUuid[uuid].inLobby
-            if (lobbyId ===""){
+            lobbyId = playersByUuid[uuid].state.inLobby
+            console.log(lobbyId)
+            if (lobbyId === ""){
                 break;
             }
             lobby = shuffleTeams(lobbyId)
@@ -100,8 +103,9 @@ const handleMessage = (bytes, uuid) => {
             }
             break;
         case "startGame":
-            lobbyId = playersByUuid[uuid].inLobby
+            lobbyId = playersByUuid[uuid].state.inLobby
             lobby = startChampSelect(lobbyId)
+            console.log(lobby)
             if (lobby) {
                 message.action = "startGame"
                 for (let team = 0; team< 2; team++){
@@ -118,7 +122,7 @@ const handleMessage = (bytes, uuid) => {
             player = playersByUuid[uuid]
             lobby = selectChampion(player.username, player.state.inLobby, request.payload.champName)
             if (lobby) {
-                let recipients =lobby.teams[player.state.team].map((player) => player.uuid)
+                let recipients = lobby.teams[player.state.team].map((player) => player.uuid)
                 message.action = "updateChamps"
                 message.payload = {}
                 message.payload.team = lobby.teams[player.state.team]
@@ -136,12 +140,12 @@ const handleMessage = (bytes, uuid) => {
                     message.payload.status = "game"
                     message.payload.teams = lobby.teams
                     broadcast(message, lobby.players.map((player) => player.uuid))
-                    setTimeout(() => {displayWinnerButtons()}, process.env.GAME_END_DELAY)
+                    setTimeout(() => {displayWinnerButtons(lobby.lobbyId)}, process.env.GAME_END_DELAY)
                 }
                 else {
                     message.action = "updateChamps"
                     message.payload = {
-                        teams : lobby.teams[player.state.team]
+                        team : lobby.teams[player.state.team]
                     }
                     broadcast(message, lobby.teams[player.state.team].map((user) => user.uuid))
                 }
@@ -151,7 +155,13 @@ const handleMessage = (bytes, uuid) => {
             let vote = request.payload.team;
             lobbyId = playersByUuid[uuid].state.inLobby
             lastMatch = endGame(lobbyId, vote)
+            lobby = getLobby(lobbyId)
+            message.action = "returnToLobby"
+            message.payload = {
+                lobby
+            }
             sendLatestMatch()
+            broadcast(message, lobby.players.map((player) => player.uuid))
             break;
         case "requestMatchHistory":
             getMatchHistory(uuid).then(
@@ -212,14 +222,11 @@ const sendLatestMatch = () => {
 }
 
 
-const displayWinnerButtons = () =>{
+const displayWinnerButtons = (lobbyId) =>{
     let message = {}
     message.action = "gameFinish"
-    message.payload ={}
-    message.payload.teamNames = teams.map(team => {
-        let teamLeader = Object.keys(team).sort((p1,p2) => 0.5 - Math.random())[0]
-        return "Team "+team[teamLeader].username
-    })
+    message.payload = {}
+    message.payload.teamNames = getTeamNames(lobbyId)
     broadcast(message, Object.keys(playersByUuid))
 }
 
@@ -229,6 +236,7 @@ const handleClose = (uuid) => {
     playersByUuid[uuid].uuid = ""
     delete playersByUuid[uuid]
     if (player.state.inLobby !== ""){
+        player.state.online = false
         checkLobbyAlive(player.state.inLobby)
     }
 }
@@ -248,7 +256,7 @@ const getDefaultPlayerState = () => {
         lockedIn:false,
         team:-1,
         inLobby: "",
-        online:false
+        online:true
     }
 }
 

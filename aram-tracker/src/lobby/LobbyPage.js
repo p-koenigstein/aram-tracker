@@ -7,28 +7,23 @@ import {HeadsUp} from "../champselect/HeadsUp";
 import {MatchSummary} from "./MatchSummary";
 import {Match} from "../matchhistory/MatchHistory";
 import {LobbyPreview} from "./LobbyPreview";
-import {NoLobby} from "./NoLobby";
+import {PreLobby} from "./PreLobby";
 import {useRadioGroup} from "@mui/material";
 
-export function Lobby ({username}) {
+export function LobbyPage ({username}) {
 
-    const [playerLobby, setPlayerLobby] = useState("")
+    const [playerLobby, setPlayerLobby] = useState({})
+    const [inLobby, setInLobby] = useState(false)
     const [players, setPlayers] = useState([])
     const [team, setTeam] = useState({})
     const [teams, setTeams] = useState([])
     const [status, setStatus] = useState("lobby")
-    const [started, setStarted] = useState(false)
+
     const [availableChamps, setAvailableChamps] = useState([])
     const [completeDraft, setCompleteDraft] = useState([])
-    const [draftComplete, setDraftComplete] = useState(false)
+
     const [teamNames, setTeamNames] = useState([])
     const [lastGame, setLastGame] = useState({})
-    const [inLobby, setInLobby] = useState(false);
-
-
-    useEffect(() => {
-        setInLobby(players.includes(username))
-    }, [username, players]);
 
     const WS_URL = process.env.REACT_APP_WS_URL;
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(WS_URL,
@@ -36,6 +31,10 @@ export function Lobby ({username}) {
             share:true,
             queryParams: {username}
         })
+
+    useEffect(() => {
+        setInLobby(Object.keys(playerLobby).length !== 0)
+    },[playerLobby])
 
     const createLobby = () => {
         sendJsonMessage({
@@ -56,6 +55,18 @@ export function Lobby ({username}) {
         sendJsonMessage({action:"shuffleTeams"})
     }
 
+    const startGame = () => {
+        sendJsonMessage({action:"startGame"})
+    }
+
+    const selectChampion = (champName) => {
+        sendJsonMessage({action:"selectChampion",payload:{champName:champName}})
+    }
+
+    const confirmChampion = () => {
+        sendJsonMessage({action:"confirmChampion", payload:{}})
+    }
+
     useEffect(() => {
         sendJsonMessage({action:"register"})
     }, []);
@@ -68,10 +79,13 @@ export function Lobby ({username}) {
                 case "register":
                     break;
                 case "createLobby":
-                    setPlayerLobby(lastJsonMessage.payload.lobbyId)
+                    setPlayerLobby(lastJsonMessage.payload.lobby)
                     break;
                 case "joinLobby":
-                    setPlayerLobby(lastJsonMessage.payload.lobbyId)
+                    setPlayerLobby(lastJsonMessage.payload.lobby)
+                    break;
+                case "updatePlayers":
+                    setPlayerLobby(lastJsonMessage.payload.lobby)
                     break;
                 case "playerList":
                     let currentPlayers = Object.keys(lastJsonMessage.payload.players).map(
@@ -85,7 +99,7 @@ export function Lobby ({username}) {
                     break;
                 case "startGame":
                     payload = lastJsonMessage.payload
-                    setAvailableChamps(payload.availableChamps)
+                    setAvailableChamps(payload.champs)
                     setTeam(payload.team)
                     setStatus(payload.status)
                     // setStarted(true)
@@ -98,7 +112,6 @@ export function Lobby ({username}) {
                 case "finishDraft":
                     payload = lastJsonMessage.payload
                     setCompleteDraft(payload.teams)
-                    setDraftComplete(true)
                     setStatus(payload.status)
                     break;
                 case "gameFinish":
@@ -108,75 +121,52 @@ export function Lobby ({username}) {
                 case "updateLatestMatch":
                     setLastGame(lastJsonMessage.payload)
                     break;
+                case "returnToLobby":
+                    setStatus(lastJsonMessage.payload.lobby.status)
+                    setPlayerLobby(lastJsonMessage.payload.lobby)
+                    break;
                 case "displayTeams":
                     setStatus(lastJsonMessage.payload.status)
-                    console.log(lastJsonMessage.payload.teams)
                     setTeams(lastJsonMessage.payload.teams)
                     break;
                 default:
-                    console.log(lastJsonMessage)
                     break;
             }
         }
     },[lastJsonMessage])
 
-    const joinGame = () => {
-        sendJsonMessage({action:"joinLobby"})
-    }
 
-    const startGame = () => {
-        sendJsonMessage({action:"startGame"})
-    }
-
-    const selectChampion = (champName) => {
-        sendJsonMessage({action:"selectChampion",payload:{champName:champName}})
-    }
-
-    const confirmChampion = () => {
-        sendJsonMessage({action:"confirmChampion", payload:{}})
-    }
-
-    if (playerLobby===""){
-        return (<div>
-            {Object.keys(lastGame).length >0 ? (<div className={"matchHistoryEntry"}>
+    const lastMatch = (<div>
+        {Object.keys(lastGame).length > 0 ? (<div className={"matchHistoryEntry"}>
                 <h3 className={"matchHistoryEntry"}>Last Match:</h3>
                 <Match match={lastGame}/>
             </div>) : <div/>}
-            <NoLobby createLobby={createLobby} joinLobby={joinLobby} username={username}/>
+        </div>
+    )
+
+    if (!inLobby){
+        return (<div>
+            {lastMatch}
+            <PreLobby createLobby={createLobby} joinLobby={joinLobby} username={username}/>
         </div>)
     }
 
     switch (status) {
         case "lobby":
             return <div>
-                {Object.keys(lastGame).length >0 ? (<div className={"matchHistoryEntry"}>
-
-                    <h3 className={"matchHistoryEntry"}>Last Match:</h3>
-                    <Match match={lastGame}/>
-                </div>) : <div/>}
-                <div>{playerLobby}</div>
-                    <PlayerList players={players} startGame={shuffleTeams} joinGame={joinGame} started={false} inLobby={inLobby}/>
+                {lastMatch}
+                <h3 className={"matchHistoryEntry"}>Lobby {playerLobby.lobbyId}</h3>
+                <PlayerList players={playerLobby.players} startGame={shuffleTeams} started={false} inLobby={true}/>
             </div>
         case "teamSelect":
             return <div>
-
-                {Object.keys(lastGame).length > 0 ? (<div className={"matchHistoryEntry"}>
-
-                    <h3 className={"matchHistoryEntry"}>Last Match:</h3>
-                    <Match match={lastGame}/>
-                </div>) : <div/>}
-                <div>{playerLobby}</div>
-                {inLobby ? <LobbyPreview teams={teams} shuffle={shuffleTeams} startGame={startGame}/> :
-                    <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={true}
-                                inLobby={inLobby}/>}
+                {lastMatch}
+                <h3 className={"matchHistoryEntry"}>Lobby {playerLobby.lobbyId}</h3>
+                <LobbyPreview teams={teams} shuffle={shuffleTeams} startGame={startGame}/>
             </div>
         case "draft":
             return <div>
-                {inLobby ?
                 <ChampionSelect username={username} playerAmount={team.length} selectChampion={selectChampion} availableChampions={availableChamps} players={team} confirmChampion={confirmChampion}/>
-                :
-                    <PlayerList players={players} startGame={startGame} joinGame={joinGame} started={true} inLobby={inLobby}/>
-                }
                 </div>
         case "game":
             return <div>
@@ -186,5 +176,3 @@ export function Lobby ({username}) {
             <div/>
     }
 }
-
-export default Lobby

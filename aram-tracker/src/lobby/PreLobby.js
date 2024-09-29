@@ -2,7 +2,7 @@ import {Button} from "react-bootstrap";
 import {useState} from "react";
 
 
-export function NoLobby({createLobby, joinLobby}) {
+export function PreLobby({createLobby, joinLobby}) {
     const [lobbyId, setLobbyId] = useState("");
     return (
         <div>
@@ -13,14 +13,14 @@ export function NoLobby({createLobby, joinLobby}) {
             }}
                 >
                 <div className={"horiz"}>
-                    <Button onClick={createLobby}>Create Lobby</Button>
+                    <Button onClick={createLobby}>Create LobbyPage</Button>
                     <input
                         type="text"
                         value={lobbyId}
-                        placeholder="Lobby ID"
+                        placeholder="LobbyPage ID"
                         onChange={(e) => setLobbyId(e.target.value)}
                     />
-                    <Button type="submit" disabled={lobbyId===""}>Join Lobby</Button>
+                    <Button type="submit" disabled={lobbyId===""}>Join LobbyPage</Button>
                 </div>
         </form>
 </div>

@@ -26,7 +26,7 @@ export function PlayerList({inLobby, players, startGame, joinGame, started}) {
     }, [started, inLobby]);
 
     const inLobbyText = "Spiel starten"
-    const outLobbyText = "Lobby beitreten"
+    const outLobbyText = "LobbyPage beitreten"
 
     return (
         <div className={"horiz defaultPadding"}>
@@ -35,8 +35,8 @@ export function PlayerList({inLobby, players, startGame, joinGame, started}) {
             </div>
             <ListGroup className={"playerList"}>
                 {players.length > 0 && players.map((player) =>
-                    <ListGroupItem key={player}>
-                        {player}
+                    <ListGroupItem key={player.username}>
+                        {player.username}
                     </ListGroupItem>
                 )}
                 {

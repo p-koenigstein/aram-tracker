@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import React, {Fragment, useEffect, useState} from "react";
 import axios from "axios";
-import Lobby from "./lobby/Lobby";
+import {LobbyPage} from "./lobby/LobbyPage";
 import ChampionSelect from "./champselect/ChampionSelect";
 import {Login} from "./landingpage/Login";
 import {Overview} from "./landingpage/Overview";
@@ -90,7 +90,7 @@ function App() {
                             </Fragment>
                         :
                         <Fragment>
-                            <Route path="lobby" element={<Lobby username={username}/>}/>
+                            <Route path="lobby" element={<LobbyPage username={username}/>}/>
                             <Route path="leaderboard" element={<LeaderBoard username={username}/>}/>
                             <Route path="matchhistory" element={<MatchHistory username={username}/>}/>
                             <Route path="profile" element={<Profile username={username}/>}/>

@@ -8,11 +8,9 @@ export function HeadsUp ({teams, teamNames, sendJsonMessage}) {
 
     const [voted, setVoted] = useState(false);
 
-
     const vote = (team) => {
         sendJsonMessage({action:"vote", payload:{team:team}})
         setVoted(true)
-        console.log("voted")
     }
 
     return (
@@ -23,8 +21,8 @@ export function HeadsUp ({teams, teamNames, sendJsonMessage}) {
                     (team,idx) => {
                         return <div className="team" key={idx}>
                             {team.map((player) => {
-                                    return <PlayerSlot selectedChamp={team[player].state.selectedChampion}
-                                                       playerName={team[player].username} key={team[player].username}
+                                    return <PlayerSlot selectedChamp={player.state.selectedChampion}
+                                                       playerName={player.username} key={player.username}
                                                        lockedIn={false}/>
                                 }
                             )}

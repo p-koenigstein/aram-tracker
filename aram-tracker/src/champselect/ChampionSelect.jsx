@@ -25,7 +25,7 @@ function ChampionSelect({username, availableChampions, players, selectChampion, 
     <div className="champSelect">
       <div className="players borderRadius">
           {players.map((player) =>
-                <PlayerSlot selectedChamp={player.state.selectedChampion} playerName={player.username} key={player} lockedIn={players[player].state.lockedIn}/>
+                <PlayerSlot selectedChamp={player.state.selectedChampion} playerName={player.username} key={player} lockedIn={player.state.lockedIn}/>
           )}
       </div>
         <div className={"selectionActions"}>
