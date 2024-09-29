@@ -8,7 +8,7 @@ import {MatchSummary} from "./MatchSummary";
 import {Match} from "../matchhistory/MatchHistory";
 import {LobbyPreview} from "./LobbyPreview";
 import {PreLobby} from "./PreLobby";
-import {useRadioGroup} from "@mui/material";
+import {Switch, useRadioGroup} from "@mui/material";
 
 export function LobbyPage ({username}) {
 
@@ -65,6 +65,10 @@ export function LobbyPage ({username}) {
 
     const confirmChampion = () => {
         sendJsonMessage({action:"confirmChampion", payload:{}})
+    }
+
+    const toggleFearless = () => {
+        sendJsonMessage({action:"toggleFearless"})
     }
 
     useEffect(() => {
@@ -155,7 +159,10 @@ export function LobbyPage ({username}) {
         case "lobby":
             return <div>
                 {lastMatch}
-                <h3 className={"matchHistoryEntry"}>Lobby {playerLobby.lobbyId}</h3>
+                <h2 className={"matchHistoryEntry"}>Lobby</h2>
+                <div className={"matchHistoryEntry"}>
+                <h4>Invite-code:  {playerLobby.lobbyId} </h4><h5> Fearless Mode<Switch checked={playerLobby.fearless} onChange={() => toggleFearless()} disabled={username!==playerLobby.creator}/></h5>
+                </div>
                 <PlayerList players={playerLobby.players} startGame={shuffleTeams} started={false} inLobby={true}/>
             </div>
         case "teamSelect":

@@ -76,6 +76,15 @@ export const leaveLobby = (playerObject) => {
     return undefined
 }
 
+export const toggleFearless = (lobbyId, username) => {
+    let lobby = lobbies[lobbyId]
+    if (username === lobby.creator){
+        lobby.fearless = ! lobby.fearless
+        return lobby
+    }
+    return false;
+}
+
 export const checkLobbyAlive = (lobbyId) => {
     if (Object.keys(lobbies).includes(lobbyId)){
         return false

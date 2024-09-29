@@ -6,7 +6,7 @@ import {
     selectChampion,
     shuffleTeams,
     startChampSelect,
-    startGame
+    startGame, toggleFearless
 } from "./lobby/lobbies.js"
 import {getElos, getLatestMatch, getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database.js";
 import {WebSocketServer} from 'ws'
@@ -84,6 +84,17 @@ const handleMessage = (bytes, uuid) => {
                         lobby
                     }
                 },[uuid])
+            }
+            break;
+        case "toggleFearless":
+            lobbyId = playersByUuid[uuid].state.inLobby
+            lobby = toggleFearless(lobbyId, playersByUuid[uuid].username)
+            if(lobby) {
+                message.action = "updatePlayers"
+                message.payload = {
+                    lobby
+                }
+                broadcast(message, lobby.players.map((player) => player.uuid))
             }
             break;
         case "shuffleTeams":

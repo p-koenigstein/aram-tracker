@@ -31,7 +31,7 @@ export function PlayerList({inLobby, players, startGame, joinGame, started}) {
     return (
         <div className={"horiz defaultPadding"}>
             <div className={"horiz"}>
-                <h2>Lobby</h2>
+                <h3>Players</h3>
             </div>
             <ListGroup className={"playerList"}>
                 {players.length > 0 && players.map((player) =>
