@@ -21,6 +21,7 @@ export function Profile ({username}) {
         playername = username
     }
 
+    console.log(playername)
 
     const WS_URL = process.env.REACT_APP_WS_URL;
     const {sendJsonMessage, lastJsonMessage} = useWebSocket(WS_URL,
@@ -35,7 +36,7 @@ export function Profile ({username}) {
 
     useEffect(() => {
         updateDisplay()
-    },[useMostChamps, useMostPlayers])
+    },[useMostChamps, useMostPlayers, enemies, teammates, matchHistory])
 
     const sortWinrate = ([nameA, statsA],[nameB, statsB]) => {
         return statsB.winRate-statsA.winRate
@@ -49,10 +50,10 @@ export function Profile ({username}) {
         if(lastJsonMessage !== null){
             switch(lastJsonMessage.action){
                 case "profileAnswer":{
+                    console.log("update ",playername)
                     setMatchHistory(lastJsonMessage.payload.matches)
                     setEnemies(lastJsonMessage.payload.enemies)
                     setTeammates(lastJsonMessage.payload.teammates)
-                    updateDisplay()
                 }
             }
         }
