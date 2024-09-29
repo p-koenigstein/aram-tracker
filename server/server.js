@@ -8,7 +8,14 @@ import {
     startChampSelect,
     startGame, toggleFearless
 } from "./lobby/lobbies.js"
-import {getElos, getLatestMatch, getMatchHistory, getPlayerMatchHistory, getRanking} from "./database/database.js";
+import {
+    getElos,
+    getLatestMatch,
+    getMatchHistory,
+    getPlayerMatchHistory,
+    getPlayerProfile,
+    getRanking
+} from "./database/database.js";
 import {WebSocketServer} from 'ws'
 import url from 'url'
 import http from 'http'
@@ -205,12 +212,13 @@ const handleMessage = (bytes, uuid) => {
             if (requestedPlayer===null){
                 requestedPlayer = playersByUuid[uuid].username
             }
-            getPlayerMatchHistory(requestedPlayer)
-                .then((history) => {
+            getPlayerProfile(requestedPlayer)
+                .then((profile) => {
                     message = {
                         action:"profileAnswer",
-                        payload:history
+                        payload:profile
                     }
+                    console.log(message)
                     connections[uuid].send(JSON.stringify(message))
                 })
             break;

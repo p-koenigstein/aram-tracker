@@ -45,7 +45,7 @@ function ChampionSelect({username, availableChampions, players, selectChampion, 
 }
 
 
-function ChampionIcon ({champ, onClick}) {
+export function ChampionIcon ({champ, onClick}) {
     if (champ==="" || champ=== undefined){
     return (<div className="championIconWrapper">
             <img src={require("../resources/champs/None.png")} alt={champ} className="championIcon" />

@@ -33,6 +33,10 @@
     padding-left:25px;
 }
 
+.paddingLeft{
+    padding-left:20px;
+}
+
 .lockedIn {
     background-color:teal
 }
@@ -207,4 +211,19 @@
 
 .shrink{
     width:fit-content !important;
+}
+
+.teammate{
+    background-color: #97D090!important;
+    border-radius:10px
+}
+
+.enemy{
+    background-color:#F68D70 !important;
+    color:white;
+    border-radius:10px
+}
+
+.champEntry {
+    display: inline-block !important;
 }

@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node --env-file=.env server.js"
+    "start": "node --env-file=.env server.js",
+    "dev": "node --env-file=.env.development server.js"
   },
   "keywords": [],
   "author": "",

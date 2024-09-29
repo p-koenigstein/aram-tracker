@@ -44,13 +44,17 @@ function App() {
     },[lastJsonMessage])
     
     const toggleDarkMode = () => {
-        setCookies("darkMode", !useDarkMode)
+        setCookies("darkMode", !useDarkMode,{
+            expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+        })
         setDarkMode(!useDarkMode)
     }
 
     const updateUserName = (userName) => {
         setUsername(userName);
-        setCookies("username", userName);
+        setCookies("username", userName,{
+            expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+        });
     }
 
     const logout = () => {

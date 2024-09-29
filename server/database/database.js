@@ -111,6 +111,64 @@ export const getMatchHistory = async () => {
     return matches
 }
 
+export const getPlayerProfile = async (userName) => {
+    let playerProfile = {}
+    let matches = await getPlayerMatchHistory(userName)
+    let teammates = {players:{
+        },
+    champs:{
+    }}
+    let enemies = {players:{
+        },
+        champs:{
+        }}
+    matches.forEach((match) => {
+        let ownTeam = match.teams.findIndex((team) => team.map((player) => player.username).includes(userName))
+        let playerWon = match.winner === ownTeam
+        for (let teamIdx in match.teams){
+            let team = match.teams[teamIdx]
+            team.forEach((player) => {
+                let array = ownTeam===parseInt(teamIdx) ? teammates : enemies
+                if (!Object.keys(array.players).includes(player.username)){
+                    array.players[player.username] = {
+                        won:0, lost:0
+                    }
+                }
+                if (!Object.keys(array.champs).includes(player.champName)){
+                    array.champs[player.champName] = {
+                        won:0, lost:0
+                    }
+                }
+                if (playerWon){
+                    array.players[player.username].won = array.players[player.username].won + 1
+                    array.champs[player.champName].won = array.champs[player.champName].won + 1
+                }
+                else {
+                    array.players[player.username].lost = array.players[player.username].lost + 1
+                    array.champs[player.champName].lost = array.champs[player.champName].lost + 1
+                }
+            })
+        }
+    })
+    delete teammates.players[userName]
+    delete teammates.champs.undefined
+    delete enemies.players[userName]
+    delete enemies.champs.undefined
+    calculateWinRate(teammates.players)
+    calculateWinRate(teammates.champs)
+    calculateWinRate(enemies.players)
+    calculateWinRate(enemies.champs)
+    return {matches,
+    enemies,
+    teammates}
+}
+
+const calculateWinRate = (playerStatsObject) =>{
+    Object.entries(playerStatsObject).forEach(([key,value], index) => {
+        value.winRate = value.won / (value.won + value.lost)
+    })
+}
+
 export const getPlayerMatchHistory = async (userName) => {
     await client.connect();
     const db = client.db(dbName);
