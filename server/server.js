@@ -323,6 +323,7 @@ wsServer.on("connection", (connection, request) => {
         console.log(playersByName)
         if (Object.keys(playersByName).includes(username)) {
             player = playersByName[username];
+            player.uuid = uuid
             player.state.online = true
         } else {
             console.log("new ",username)
