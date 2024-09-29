@@ -97,7 +97,9 @@ export function Profile ({username}) {
             }
         </Table>
         <div className={"horiz"}>
+            <div className={"horiz"}>
             <h3>Match History </h3>
+            </div>
             <MatchList matches={matchHistory}/>
         </div>
             </div> : <div className={"horiz defaultPadding"}>

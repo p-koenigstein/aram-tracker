@@ -34,7 +34,7 @@
 }
 
 .paddingLeft{
-    padding-left:20px;
+    padding-left:4px;
 }
 
 .lockedIn {
@@ -227,4 +227,9 @@ a:hover{
 .champEntry {
     display: inline-block !important;
     font-weight: bold;
+}
+
+.champEntry .championIcon{
+    width:80px;
+    height:80px;
 }
