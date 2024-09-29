@@ -32,6 +32,8 @@ export function Profile ({username}) {
 
     useEffect(() => {
         sendJsonMessage({action:"requestProfile", payload:{player:playername}})
+        setUseMostPlayers(true)
+        setUseMostChamps(true)
     }, [playername]);
 
     useEffect(() => {
