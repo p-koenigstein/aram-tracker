@@ -90,6 +90,7 @@ const handleMessage = (bytes, uuid) => {
                     lobby
                 }
             },[uuid])
+            sendPlayerList()
             break;
         case 'leaveLobby':
             player = playersByUuid[uuid]
@@ -100,6 +101,7 @@ const handleMessage = (bytes, uuid) => {
                 console.log(lobby.players.map((player)=> player.username))
                 broadcast(message, lobby.players.map((player)=> player.uuid))
             }
+            sendPlayerList()
             break;
         case "joinLobby":
             lobbyId = request.payload.lobbyId
@@ -111,6 +113,7 @@ const handleMessage = (bytes, uuid) => {
                     lobby
                 }
                 broadcast(message, lobby.players.map((player) => player.uuid))
+                sendPlayerList()
             }
             break;
         case "toggleFearless":
@@ -246,6 +249,20 @@ const handleMessage = (bytes, uuid) => {
     }
 }
 
+const sendPlayerList = () => {
+    let players = Object.entries(playersByUuid).map(([key, value]) =>{
+        return {
+        username:value.username,
+        online:value.state.online,
+        inLobby:value.state.inLobby
+    }})
+    let message = {
+        action:"playerlist",
+        payload:{players}
+    }
+    broadcast(message, Object.keys(playersByUuid))
+}
+
 const getPlayerList = () =>{
     return Object.entries(playersByName).filter(([name, playerObject]) => playerObject.state.online).map(([name, playerObject]) => name)
 }
@@ -274,6 +291,8 @@ const handleClose = (uuid) => {
     console.log("disconnect ", uuid, player.username)
     delete connections[uuid]
     playersByUuid[uuid].uuid = ""
+    player.state.selectedChampion =""
+    player.state.lockedIn = false
     delete playersByUuid[uuid]
     if (player.state.inLobby !== ""){
         player.state.online = false
@@ -285,6 +304,7 @@ const handleClose = (uuid) => {
             broadcast(message, lobby.players.map((player)=> player.uuid))
         }
     }
+    sendPlayerList()
 }
 
 const createPlayer = (uuid, username) => {
@@ -349,6 +369,7 @@ wsServer.on("connection", (connection, request) => {
             broadcast(message, lobby.players.map((player)=> player.uuid))
         }
         updateUserStatus(uuid)
+        sendPlayerList()
         connection.on("message", message => handleMessage(message, uuid))
         connection.on("close", () => handleClose(uuid))
     }

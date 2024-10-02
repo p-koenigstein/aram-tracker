@@ -9,9 +9,11 @@ import {Match} from "../matchhistory/MatchHistory";
 import {LobbyPreview} from "./LobbyPreview";
 import {PreLobby} from "./PreLobby";
 import {Switch, useRadioGroup} from "@mui/material";
+import {OnlinePlayers} from "./OnlinePlayers";
 
 export function LobbyPage ({username}) {
 
+    const [onlinePlayers, setOnlinePlayers] = useState([])
     const [playerLobby, setPlayerLobby] = useState({})
     const [inLobby, setInLobby] = useState(false)
     const [players, setPlayers] = useState([])
@@ -97,6 +99,10 @@ export function LobbyPage ({username}) {
                         setPlayerLobby(lastJsonMessage.payload.lobby)
                     }
                     break;
+                case "playerlist":
+                    console.log(lastJsonMessage)
+                    setOnlinePlayers(lastJsonMessage.payload.players)
+                    break;
                 case "createLobby":
                     console.log("createLobby")
                     console.log(lastJsonMessage)
@@ -172,6 +178,7 @@ export function LobbyPage ({username}) {
         return (<div>
             {lastMatch}
             <PreLobby createLobby={createLobby} joinLobby={joinLobby} username={username}/>
+            <OnlinePlayers username={username} players={onlinePlayers} joinLobby={joinLobby}/>
         </div>)
     }
     console.log(inLobby)
